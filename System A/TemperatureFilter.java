@@ -15,6 +15,8 @@
 
 public class TemperatureFilter extends DataConverter {
 
+    private final static int ID = 4;
+
     @Override
     protected double convertData(double inputValue) {
         return ((inputValue - 32) / 1.8);

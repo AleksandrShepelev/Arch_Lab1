@@ -15,6 +15,8 @@
 
 public class AttitudeFilter extends DataConverter {
 
+    private final static int ID = 2;
+
     @Override
     protected double convertData(double inputValue) {
         return inputValue * 0.3048;
@@ -22,7 +24,7 @@ public class AttitudeFilter extends DataConverter {
 
     @Override
     protected int getMeasurementId() {
-        return 2;
+        return ID;
     }
 
 } // AttitudeFilter
