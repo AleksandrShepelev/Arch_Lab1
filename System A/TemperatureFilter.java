@@ -24,6 +24,6 @@ public class TemperatureFilter extends DataConverter {
 
     @Override
     protected int getMeasurementId() {
-        return 4;
+        return ID;
     }
 } // TemperatureFilter
