@@ -31,7 +31,7 @@ public abstract class DataConverter extends FilterFramework {
         long measurement; // This is the word used to store all measurements - conversions are illustrated.
         int i; // This is a loop counter
 
-        byte[] bytesReceived; // array with bytes that were received and should be transmitted further
+        boolean needToConvert = false; // flag states if there is a need to convert the data block
 
         // Next we write a message to the terminal to let the world know we are alive...
         System.out.print("\n" + this.getName() + "::" + this.getClass().getName() + " Reading ");
@@ -66,18 +66,28 @@ public abstract class DataConverter extends FilterFramework {
 
                 } // for
 
+                needToConvert = (currentId == this.getMeasurementId());
+
+                //very difficult logic: if we don't need to convert the data
+                //then just resend byte further
                 measurement = 0;
                 for (i = 0; i < measurementLength; i++) {
                     dataByte = readFilterInputPort();
-                    measurement |= dataByte & 0xFF; // We append the byte on to measurement...
-
-                    // If this is not the last byte, then slide the
-                    if (i != measurementLength - 1) { // previously appended byte to the left by one byte
-                        measurement = measurement << 8; // to make room for the next byte we append to the
-                        // measurement
-                    } // if
-
                     bytesRead++; // Increment the byte count
+
+                    if (needToConvert) {
+                        measurement |= dataByte & 0xFF; // We append the byte on to measurement...
+
+                        // If this is not the last byte, then slide the
+                        if (i != measurementLength - 1) { // previously appended byte to the left by one byte
+                            measurement = measurement << 8; // to make room for the next byte we append to the
+                            // measurement
+                        } // if
+                    } else {
+                        writeFilterOutputPort(dataByte);
+                        bytesWritten++;
+                    }
+
                 } // if
 
                 // if this is the ID to be converted, then get the data and convert it
@@ -92,14 +102,17 @@ public abstract class DataConverter extends FilterFramework {
 
                 } // if
 
-                // send further byte by byte
-                // we should start from higher bites to lower to preserve the order
-                for (i = 0; i < measurementLength; i++) {
-                    dataByte = (byte)((measurement >> 8 * (7-i)) & 0xFF);
-                    //transmit data further to the next filter
-                    writeFilterOutputPort(dataByte);
-                    bytesWritten++;
-                }
+                // if something was converted, than data should be sent this way
+                if (needToConvert) {
+                    // send further byte by byte
+                    // we should start from higher bites to lower to preserve the order
+                    for (i = 0; i < measurementLength; i++) {
+                        dataByte = (byte)((measurement >> 8 * (7-i)) & 0xFF);
+                        //transmit data further to the next filter
+                        writeFilterOutputPort(dataByte);
+                        bytesWritten++;
+                    }
+                } // if
 
             } catch (EndOfStreamException e) {
                 closePorts();
