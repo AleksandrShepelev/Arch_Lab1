@@ -1,9 +1,9 @@
 /******************************************************************************************************************
  * File: Plumber.java
- * Course: MSIT-SE-M-04
+ * Course: Software Architecture
  * Project: Assignment 1
- * Copyright: Copyright (c) 2003 Carnegie Mellon University
- * Versions: 1.0 November 2008 - Sample Pipe and Filter code (ajl).
+ * Copyright: SKB Kontur Team (MSIT SE)
+ * Date: 06.02.16
  *
  * Description:
  *
@@ -21,27 +21,31 @@
 public class Plumber {
     public static void main(String argv[]) {
         /****************************************************************************
-         * Here we instantiate three filters.
+         * Here we instantiate four filters.
          ****************************************************************************/
 
-        SourceFilter filter1 = new SourceFilter();
-        MiddleFilter filter2 = new MiddleFilter();
-        SinkFilter filter3 = new SinkFilter();
+        SourceFilter source = new SourceFilter();
+        TemperatureFilter temperature = new TemperatureFilter();
+        AttitudeFilter attitude = new AttitudeFilter();
+        SinkFilter sink = new SinkFilter();
 
         /****************************************************************************
          * Here we connect the filters starting with the sink filter (filter1) which we connect to
          * filter2 the middle filter. Then we connect Filter2 to the source filter (filter3).
          ****************************************************************************/
 
-        filter3.connect(filter2); // This esstially says, "connect filter3 input port to filter2 output port
-        filter2.connect(filter1); // This esstially says, "connect filter2 intput port to filter1 output port
+
+        sink.connect(attitude); // This esstially says, "connect sink input port to attitude output port
+        attitude.connect(temperature); // This esstially says, "connect attitude input port to temperature output port
+        temperature.connect(source); // This esstially says, "connect temperature intput port to source output port
 
         /****************************************************************************
          * Here we start the filters up. All-in-all,... its really kind of boring.
          ****************************************************************************/
 
-        filter1.start();
-        filter2.start();
-        filter3.start();
+        source.start();
+        temperature.start();
+        attitude.start();
+        sink.start();
     } // main
 } // Plumber
