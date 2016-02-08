@@ -24,10 +24,12 @@ public class Plumber {
          * Here we instantiate four filters.
          ****************************************************************************/
 
-        SourceFilter source = new SourceFilter();
+        SourceFilter sourceA = new SourceFilter();
+        SourceFilter sourceB = new SourceFilter();
         TemperatureFilter temperature = new TemperatureFilter();
         AttitudeFilter attitude = new AttitudeFilter();
         SinkFilter sink = new SinkFilter();
+        MergerFilter merger =new MergerFilter();
 
         /****************************************************************************
          * Here we connect the filters starting with the sink filter (filter1) which we connect to
@@ -36,13 +38,16 @@ public class Plumber {
 
         sink.connect(temperature); // This esstially says, "connect sink input port to attitude output port
         //attitude.connect(temperature); // This esstially says, "connect attitude input port to temperature output port
-        temperature.connect(source); // This esstially says, "connect temperature intput port to source output port
+        temperature.connect(sourceA); // This esstially says, "connect temperature intput port to source output port
+        attitude.connect(sourceB);
+        merger.connect(sourceA);
+        merger.connect(sourceB);
 
         /****************************************************************************
          * Here we start the filters up. All-in-all,... its really kind of boring.
          ****************************************************************************/
 
-        source.start();
+        sourceA.start();
         temperature.start();
         //attitude.start();
         sink.start();
