@@ -16,10 +16,7 @@
  *
  ******************************************************************************************************************/
 
-public abstract class DataConverter extends FilterFramework {
-
-    protected static final int measurementLength = 8; // This is the length of all measurements (including time) in bytes
-    protected static final int idLength = 4; // This is the length of IDs in the byte stream
+public abstract class DataConverter extends SystemFilter {
 
     public void run() {
         int bytesRead = 0; // Number of bytes read from the input file.
