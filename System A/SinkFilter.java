@@ -61,6 +61,24 @@ public class SinkFilter extends SystemFilter {
         }
     }
 
+    private String getHeader(int id) {
+        switch (id) {
+            case Frame.TIME_ID:
+                return "Time:";
+            case Frame.VELOCITY_ID:
+                return "Velosity(sec):";
+            case Frame.ATTITUDE_ID:
+                return "Attitude(m):";
+            case Frame.PRESSURE_ID:
+                return  "Pressure(psi):";
+            case Frame.TEMPERATURE_ID:
+                return "Temperature(C):";
+            case Frame.BANK_ID:
+                return "Bank(m):";
+            default:
+                return  "Undefined header:";
+        }
+    }
     public void run() {
         /************************************************************************************
          * timeStamp is used to compute time using java.util's Calendar class. timeStampFormat is
@@ -87,9 +105,9 @@ public class SinkFilter extends SystemFilter {
             return;
         }
 
-        /*
-        TODO:Is header needed in file?
-         */
+        for (int i = 0; i < outputColumn.length; i++) {
+            fileWriter.write(String.format("%-24s",getHeader(outputColumn[i])));
+        }
 
         /*************************************************************
          * First we announce to the world that we are alive...
@@ -112,7 +130,7 @@ public class SinkFilter extends SystemFilter {
                     currentFrame = this.readCurrentFrame(portNum);
                     fileWriter.write("\n");
                     for (int i = 0; i < outputColumn.length; i++) {
-                        fileWriter.write(convertToOutput(outputColumn[i], currentFrame.data.get(outputColumn[i])) + " ");
+                        fileWriter.write(String.format("%-24s",convertToOutput(outputColumn[i], currentFrame.data.get(outputColumn[i]))));
                     }
 
                 } catch (EndOfStreamException e) {
