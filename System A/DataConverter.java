@@ -30,6 +30,11 @@ public abstract class DataConverter extends SystemFilter {
              **************************************************************/
 
             for (int portNum = 0; portNum < this.getNumberOfInputPorts(); portNum++) {
+
+                if (!this.inputPortIsAlive(portNum)) {
+                    continue;
+                }
+
                 try {
 
                     currentFrame = this.readCurrentFrame(portNum);
@@ -46,7 +51,9 @@ public abstract class DataConverter extends SystemFilter {
                     closeInputPort(portNum);
                     System.out.print("\n" + this.getName() + "::Middle Exiting; bytes read: " +
                             bytesRead + " bytes written: " + bytesWritten);
-                    break;
+                    if (this.getNumberOfInputPorts() < 1) {
+                        break;
+                    }
                 } // try-catch
             }
 

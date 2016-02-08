@@ -76,8 +76,6 @@ public class SinkFilter extends SystemFilter {
         Integer[] outputColumn = {Frame.TIME_ID, Frame.TEMPERATURE_ID, Frame.ATTITUDE_ID};
 
 
-
-
         /*here we initialize file reader. If something goes wrong we'll get exception here*/
         try {
             fileWriter = new PrintWriter(fileName, encoding);
@@ -100,25 +98,34 @@ public class SinkFilter extends SystemFilter {
         System.out.print("\n" + this.getName() + "::Sink Reading ");
         Frame currentFrame = null;
         while (true) {
-            try {
-                currentFrame = this.readCurrentFrame();
-                fileWriter.write("\n");
-                for (int i = 0; i < outputColumn.length; i++) {
-                    fileWriter.write(convertToOutput(outputColumn[i], currentFrame.data.get(outputColumn[i])) + " ");
+            for (int portNum = 0; portNum < this.getNumberOfInputPorts(); portNum++) {
+
+                if (!this.inputPortIsAlive(portNum)) {
+                    continue;
                 }
 
-            } catch (EndOfStreamException e) {
+                try {
+                    currentFrame = this.readCurrentFrame(portNum);
+                    fileWriter.write("\n");
+                    for (int i = 0; i < outputColumn.length; i++) {
+                        fileWriter.write(convertToOutput(outputColumn[i], currentFrame.data.get(outputColumn[i])) + " ");
+                    }
 
-                /*******************************************************************************
-                 * The EndOfStreamExeception below is thrown when you reach end of the input stream
-                 * (duh). At this point, the filter ports are closed and a message is written letting
-                 * the user know what is going on.
-                 ********************************************************************************/
-                fileWriter.close();
-                closePorts();
-                System.out.print("\n" + this.getName() + "::Sink Exiting; bytes read: " + bytesRead);
-                break;
-            } // catch
+                } catch (EndOfStreamException e) {
+
+                    /*******************************************************************************
+                     * The EndOfStreamExeception below is thrown when you reach end of the input stream
+                     * (duh). At this point, the filter ports are closed and a message is written letting
+                     * the user know what is going on.
+                     ********************************************************************************/
+                    fileWriter.close();
+                    this.closeInputPort(portNum);
+                    System.out.print("\n" + this.getName() + "::Sink Exiting; bytes read: " + bytesRead);
+                    if (this.getNumberOfInputPorts() < 1) {
+                        break;
+                    }
+                } // catch
+            }
         } // while
     } // run
 } // SinkFilter

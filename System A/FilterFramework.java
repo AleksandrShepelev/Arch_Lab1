@@ -202,6 +202,11 @@ public class FilterFramework extends Thread {
         }
     }
 
+
+    boolean inputPortIsAlive (int portNum) {
+        return this.inputReadPorts.get(portNum) != null;
+    }
+
     /***************************************************************************
      * CONCRETE METHOD:: endOfInputStream
      * 
