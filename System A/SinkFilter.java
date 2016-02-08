@@ -61,6 +61,24 @@ public class SinkFilter extends SystemFilter {
         }
     }
 
+    private String getHeader(int id) {
+        switch (id) {
+            case Frame.TIME_ID:
+                return "Time:";
+            case Frame.VELOCITY_ID:
+                return "Velosity(sec):";
+            case Frame.ATTITUDE_ID:
+                return "Attitude(m):";
+            case Frame.PRESSURE_ID:
+                return  "Pressure(psi):";
+            case Frame.TEMPERATURE_ID:
+                return "Temperature(C):";
+            case Frame.BANK_ID:
+                return "Bank(m):";
+            default:
+                return  "Undefined header:";
+        }
+    }
     public void run() {
         /************************************************************************************
          * timeStamp is used to compute time using java.util's Calendar class. timeStampFormat is
@@ -87,17 +105,15 @@ public class SinkFilter extends SystemFilter {
             return;
         }
 
-        /*
-        TODO:Is header needed in file?
-         */
+        for (Integer anOutputColumn1 : outputColumn) {
+            fileWriter.write(String.format("%-24s", getHeader(anOutputColumn1)));
+        }
 
         /*************************************************************
          * First we announce to the world that we are alive...
          **************************************************************/
 
         System.out.print("\n" + this.getName() + "::Sink Reading ");
-
-        Frame currentFrame;
 
         boolean sourcesExist = true;
 
@@ -109,13 +125,20 @@ public class SinkFilter extends SystemFilter {
                 }
 
                 try {
-                    currentFrame = this.readCurrentFrame(portNum);
+                    this.currentFrame = this.readCurrentFrame(portNum);
+
                     fileWriter.write("\n");
-                    for (int i = 0; i < outputColumn.length; i++) {
-                        fileWriter.write(convertToOutput(outputColumn[i], currentFrame.data.get(outputColumn[i])) + " ");
+                    for (Integer anOutputColumn : outputColumn) {
+                        fileWriter.write(String.format("%-24s", convertToOutput(anOutputColumn, this.currentFrame.getData().get(anOutputColumn))));
                     }
 
                 } catch (EndOfStreamException e) {
+
+                    //we should append the
+                    fileWriter.write("\n");
+                    for (Integer anOutputColumn : outputColumn) {
+                        fileWriter.write(String.format("%-24s", convertToOutput(anOutputColumn, this.currentFrame.getData().get(anOutputColumn))));
+                    }
 
                     /*******************************************************************************
                      * The EndOfStreamExeception below is thrown when you reach end of the input stream

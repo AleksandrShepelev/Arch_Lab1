@@ -25,6 +25,8 @@ public abstract class SystemFilter extends FilterFramework {
     protected int bytesRead = 0; // Number of bytes read from the input file.
     protected int bytesWritten = 0; // Number of bytes written to the stream.
 
+    protected Frame currentFrame = null; // current frame data
+    private Frame nextFrame = null; // Next frame container...we need it when we stop reading to the first and return the data
 
     /**
      *  This method takes as an argument the frame to be transmitted and sends it byte-by-byte starting
@@ -71,50 +73,103 @@ public abstract class SystemFilter extends FilterFramework {
      */
     protected Frame readCurrentFrame (int portNumber) throws EndOfStreamException {
         int currentId; //Current measurement data id (also for time)
-        byte dataByte; // This is the data byte read from the stream
 
         long measurement; // This is the word used to store all measurements - conversions are illustrated.
-        int i, j; // This is a loop counter
 
-        Frame currentFrame = new Frame();
+        currentFrame = new Frame();
 
-        for (i = 0; i < Frame.PACKETS; i++) {
+        if (nextFrame != null) {
+            for (Map.Entry<Integer, Double> entry : nextFrame.getData().entrySet()) {
+                currentFrame.getData().put(entry.getKey(), entry.getValue());
+            }
+        }
 
-            currentId = 0;
+        while (true) {
 
-            //read ID first
-            for (j = 0; j < Frame.ID_LENGTH; j++) {
-                dataByte = readFilterInputPort(portNumber); // This is where we read the byte from the stream...
-
-                currentId |= dataByte & 0xFF; // We append the byte on to ID...
-
-                // If this is not the last byte, then slide the
-                if (j != idLength - 1) { // previously appended byte to the left by one byte
-                    currentId = currentId << 8; // to make room for the next byte we append to the ID
-                } // if
-
-                bytesRead++; // Increment the byte count
-
-            } // for
+            // read ID first
+            currentId = this.getPacketId(portNumber);
 
             // read the measurement data
-            measurement = 0;
-            for (j = 0; j < Frame.DATA_LENGTH; j++) {
-                dataByte = readFilterInputPort(portNumber);
-                bytesRead++; // Increment the byte count
+            measurement = this.getPacketData(portNumber);
 
-                measurement |= dataByte & 0xFF; // We append the byte on to measurement...
+            //
+            if (currentId == Frame.TIME_ID) {
+                if (nextFrame != null) {
+                    // pack data
+                    nextFrame.getData().put(currentId, Double.longBitsToDouble(measurement));
+                    return currentFrame;
+                } else {
+                    nextFrame = new Frame();
+                }
+            }
 
-                // If this is not the last byte, then slide the
-                if (j != measurementLength - 1) { // previously appended byte to the left by one byte
-                    measurement = measurement << 8; // to make room for the next byte we append to the
-                    // measurement
-                } // if
-            } // if
             currentFrame.getData().put(currentId, Double.longBitsToDouble(measurement));
         }
 
-        return currentFrame;
+    }
+
+    /**
+     * This methods reads the packet id inside the frame
+     *
+     * @param portNumber int the port number for the stream to read data from
+     * @return int the ID for the packet
+     * @throws EndOfStreamException
+     */
+    private int getPacketId(int portNumber) throws EndOfStreamException {
+
+        int currentId = 0; //Current measurement data id (also for time)
+        byte dataByte; // This is the data byte read from the stream
+
+        int i; // This is a loop counter
+
+        //read ID first
+        for (i = 0; i < Frame.ID_LENGTH; i++) {
+            dataByte = readFilterInputPort(portNumber); // This is where we read the byte from the stream...
+
+            currentId |= dataByte & 0xFF; // We append the byte on to ID...
+
+            // If this is not the last byte, then slide the
+            if (i != idLength - 1) { // previously appended byte to the left by one byte
+                currentId = currentId << 8; // to make room for the next byte we append to the ID
+            } // if
+
+            bytesRead++; // Increment the byte count
+
+        } // for
+
+        return currentId;
+    }
+
+    /**
+     * This method reads data from the stream byte by byte for the packet data
+     *
+     * @param portNumber int number of input port to read data from
+     * @return long data in the packet represented in long bits
+     * @throws EndOfStreamException
+     */
+    private long getPacketData(int portNumber) throws EndOfStreamException {
+
+        byte dataByte; // This is the data byte read from the stream
+
+        long measurement = 0; // This is the word used to store all measurements - conversions are illustrated.
+        int i; // This is a loop counter
+
+        //read ID first
+        for (i = 0; i < Frame.DATA_LENGTH; i++) {
+            dataByte = readFilterInputPort(portNumber);
+            bytesRead++; // Increment the byte count
+
+            measurement |= dataByte & 0xFF; // We append the byte on to measurement...
+
+            // If this is not the last byte, then slide the
+            if (i != measurementLength - 1) { // previously appended byte to the left by one byte
+                measurement = measurement << 8; // to make room for the next byte we append to the
+                // measurement
+            } // if
+
+        } // for
+
+        return measurement;
     }
 
 }

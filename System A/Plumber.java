@@ -43,13 +43,18 @@ public class Plumber {
         merger.connect(sourceA);
         merger.connect(sourceB);
 
+        /*sink.connect(attitude); // This esstially says, "connect sink input port to attitude output port
+        attitude.connect(temperature); // This esstially says, "connect attitude input port to temperature output port
+        temperature.connect(source); // This esstially says, "connect temperature intput port to source output port
+        */
+
         /****************************************************************************
          * Here we start the filters up. All-in-all,... its really kind of boring.
          ****************************************************************************/
 
         sourceA.start();
         temperature.start();
-        //attitude.start();
+        attitude.start();
         sink.start();
     } // main
 } // Plumber
