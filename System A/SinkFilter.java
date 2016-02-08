@@ -32,17 +32,20 @@ import java.text.SimpleDateFormat; // This class is used to format and write tim
 
 public class SinkFilter extends SystemFilter {
     private String convertToOutput(int id, double measurement) {
-        SimpleDateFormat timeStampOutputFormat = new SimpleDateFormat("yyyy:MM:dd::hh:mm:ss");
+        Calendar timeStamp = Calendar.getInstance();
+        SimpleDateFormat timeStampOutputFormat = new SimpleDateFormat("yyyy:MM:dd:hh:mm:ss");
         DecimalFormat attitudeFormat = new DecimalFormat("000000.00000");
         DecimalFormat tempFormat = new DecimalFormat("000.00000");
         DecimalFormat pressureFormat = new DecimalFormat("00.00000");
         DecimalFormat velocityFormat = new DecimalFormat("000000.00000");
         DecimalFormat bankFormat = new DecimalFormat("000000.00000");
-
+        if (id == Frame.TIME_ID) {
+            timeStamp.setTimeInMillis(Double.doubleToLongBits(measurement));
+        }
 
         switch (id) {
             case Frame.TIME_ID:
-                return timeStampOutputFormat.format(measurement);
+                return timeStampOutputFormat.format(timeStamp.getTime());
             case Frame.VELOCITY_ID:
                 return velocityFormat.format(measurement);
             case Frame.ATTITUDE_ID:
@@ -70,7 +73,7 @@ public class SinkFilter extends SystemFilter {
         SimpleDateFormat timeStampFormat = new SimpleDateFormat("yyyy MM dd::hh:mm:ss:SSS");
 
         /* here should be put ID's of data that should be output */
-        Integer[] outputColumn = {Frame.TIME_ID,Frame.TEMPERATURE_ID,Frame.ATTITUDE_ID};
+        Integer[] outputColumn = {Frame.TIME_ID, Frame.TEMPERATURE_ID, Frame.ATTITUDE_ID};
 
 
 
@@ -99,10 +102,10 @@ public class SinkFilter extends SystemFilter {
         while (true) {
             try {
                 currentFrame = this.readCurrentFrame();
-
-            for (int i=0;i<outputColumn.length;i++) {
-                fileWriter.write(currentFrame.data.get(outputColumn[i]));
-            }
+                fileWriter.write("\n");
+                for (int i = 0; i < outputColumn.length; i++) {
+                    fileWriter.write(convertToOutput(outputColumn[i], currentFrame.data.get(outputColumn[i])) + " ");
+                }
 
             } catch (EndOfStreamException e) {
 
@@ -111,7 +114,7 @@ public class SinkFilter extends SystemFilter {
                  * (duh). At this point, the filter ports are closed and a message is written letting
                  * the user know what is going on.
                  ********************************************************************************/
-
+                fileWriter.close();
                 closePorts();
                 System.out.print("\n" + this.getName() + "::Sink Exiting; bytes read: " + bytesRead);
                 break;

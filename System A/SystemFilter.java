@@ -111,7 +111,6 @@ public abstract class SystemFilter extends FilterFramework {
                     // measurement
                 } // if
             } // if
-
             currentFrame.getData().put(currentId, Double.longBitsToDouble(measurement));
         }
 
