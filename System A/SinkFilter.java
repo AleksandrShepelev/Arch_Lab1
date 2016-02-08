@@ -96,9 +96,13 @@ public class SinkFilter extends SystemFilter {
          **************************************************************/
 
         System.out.print("\n" + this.getName() + "::Sink Reading ");
-        Frame currentFrame = null;
-        while (true) {
-            for (int portNum = 0; portNum < this.getNumberOfInputPorts(); portNum++) {
+
+        Frame currentFrame;
+
+        boolean sourcesExist = true;
+
+        while (sourcesExist) {
+            for (int portNum = 0; portNum < this.getNumberOfOpenedInputPorts(); portNum++) {
 
                 if (!this.inputPortIsAlive(portNum)) {
                     continue;
@@ -118,13 +122,15 @@ public class SinkFilter extends SystemFilter {
                      * (duh). At this point, the filter ports are closed and a message is written letting
                      * the user know what is going on.
                      ********************************************************************************/
-                    fileWriter.close();
                     this.closeInputPort(portNum);
                     System.out.print("\n" + this.getName() + "::Sink Exiting; bytes read: " + bytesRead);
-                    if (this.getNumberOfInputPorts() < 1) {
+
+                    if (this.getNumberOfOpenedInputPorts() < 1) {
+                        fileWriter.close();
+                        sourcesExist = false;
                         break;
                     }
-                } // catch
+                }
             }
         } // while
     } // run

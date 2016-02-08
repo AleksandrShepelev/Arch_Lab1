@@ -22,14 +22,16 @@ public abstract class DataConverter extends SystemFilter {
 
         Frame currentFrame;
 
-        while (true) {
+        boolean sourcesExist = true;
+
+        while (sourcesExist) {
             /*************************************************************
              * Here we read the data byte by byte
              * Buffer inside the Frame structure
              * And then convert the data applying necessary filter
              **************************************************************/
 
-            for (int portNum = 0; portNum < this.getNumberOfInputPorts(); portNum++) {
+            for (int portNum = 0; portNum < this.getNumberOfOpenedInputPorts(); portNum++) {
 
                 if (!this.inputPortIsAlive(portNum)) {
                     continue;
@@ -51,7 +53,8 @@ public abstract class DataConverter extends SystemFilter {
                     closeInputPort(portNum);
                     System.out.print("\n" + this.getName() + "::Middle Exiting; bytes read: " +
                             bytesRead + " bytes written: " + bytesWritten);
-                    if (this.getNumberOfInputPorts() < 1) {
+                    if (this.getNumberOfOpenedInputPorts() < 1) {
+                        sourcesExist = false;
                         break;
                     }
                 } // try-catch

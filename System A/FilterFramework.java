@@ -230,8 +230,14 @@ public class FilterFramework extends Thread {
         return !inputFilter.isAlive();
     } // endOfInputStream
 
-    int getNumberOfInputPorts() {
-        return this.inputReadPorts.size();
+    int getNumberOfOpenedInputPorts() {
+        int counter = 0;
+        for (PipedInputStream inputReadPort : this.inputReadPorts) {
+            if (inputReadPort != null) {
+                counter++;
+            }
+        }
+        return counter;
     }
 
     /***************************************************************************

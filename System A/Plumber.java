@@ -34,8 +34,8 @@ public class Plumber {
          * filter2 the middle filter. Then we connect Filter2 to the source filter (filter3).
          ****************************************************************************/
 
-        sink.connect(attitude); // This esstially says, "connect sink input port to attitude output port
-        attitude.connect(temperature); // This esstially says, "connect attitude input port to temperature output port
+        sink.connect(temperature); // This esstially says, "connect sink input port to attitude output port
+        //attitude.connect(temperature); // This esstially says, "connect attitude input port to temperature output port
         temperature.connect(source); // This esstially says, "connect temperature intput port to source output port
 
         /****************************************************************************
@@ -44,7 +44,7 @@ public class Plumber {
 
         source.start();
         temperature.start();
-        attitude.start();
+        //attitude.start();
         sink.start();
     } // main
 } // Plumber
