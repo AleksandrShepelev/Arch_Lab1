@@ -20,15 +20,17 @@ public abstract class DataConverter extends SystemFilter {
 
     public void run() {
 
-        Frame currentFrame;
-
         boolean sourcesExist = true;
 
         while (sourcesExist) {
             /*************************************************************
-             * Here we read the data byte by byte
-             * Buffer inside the Frame structure
-             * And then convert the data applying necessary filter
+             * Here we read the data byte by byte and buffer them
+             * inside the Frame structure
+             * And then convert the data applying necessary data converter
+             *
+             * We read from all input ports we have until all input pipes are closed
+             * only after that we also close other ports and break the while loop
+             *
              **************************************************************/
 
             for (int portNum = 0; portNum < this.getNumberOfOpenedInputPorts(); portNum++) {
@@ -39,17 +41,16 @@ public abstract class DataConverter extends SystemFilter {
 
                 try {
 
-                    currentFrame = this.readCurrentFrame(portNum);
+                    this.readCurrentFrame(portNum);
 
-                    if (currentFrame.getData().containsKey(this.getMeasurementId())) {
-                        System.out.println(this.getClass().getName() + " converted value " + currentFrame.getData().get(this.getMeasurementId()));
-                        this.convertData(currentFrame);
-                        System.out.println(" to " + currentFrame.getData().get(this.getMeasurementId()));
+                    if (this.currentFrame.getData().containsKey(this.getMeasurementId())) {
+                        this.convertData(this.currentFrame);
                     }
 
-                    this.transmitCurrentFrame (currentFrame);
+                    this.transmitCurrentFrame (this.currentFrame);
 
                 } catch (EndOfStreamException e) {
+                    this.transmitCurrentFrame (this.currentFrame);
                     closeInputPort(portNum);
                     System.out.print("\n" + this.getName() + "::Middle Exiting; bytes read: " +
                             bytesRead + " bytes written: " + bytesWritten);

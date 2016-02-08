@@ -21,7 +21,6 @@ public class Frame {
 
     public static final int DATA_LENGTH = 8; // This is the length of all measurements (including time) in bytes per one data packet
     public static final int ID_LENGTH = 4; // This is the length of IDs in the byte stream
-    public static final int PACKETS = 6; // How many data packets inside one frame (including time)
 
     public final static int TIME_ID = 0; // Time identity
     public final static int VELOCITY_ID = 1; // Velocity identity
@@ -29,6 +28,7 @@ public class Frame {
     public final static int PRESSURE_ID = 3; // Pressure identity
     public final static int TEMPERATURE_ID = 4; // Temperature identity
     public final static int BANK_ID = 5; // Bank identity (Like "kren" in Russian analogues)
+    public final static int EXTRAPOLATED_PRESSURE = 6; // Pressure that was extrapolated
 
     protected Map <Integer, Double> data = new HashMap<>(); // Hash map with the data
 
