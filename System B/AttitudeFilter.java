@@ -1,5 +1,5 @@
 /******************************************************************************************************************
- * File: TemperatureFilter.java
+ * File: AttitudeFilter.java
  * Course: Software Architecture
  * Project: Assignment 1
  * Copyright: SKB Kontur Team (MSIT SE)
@@ -7,21 +7,24 @@
  *
  * Description:
  *
- * This class represents the filter responsible for converting temperature from Fahrenheit to Celsius
+ * This class represents the filter responsible for converting temperature from feet to meters
  * by means of implementing parent method convertData
  *
  *
  ******************************************************************************************************************/
 
-public class TemperatureFilter extends DataConverter {
+public class AttitudeFilter extends DataConverter {
+
+    private final static int ID = 2;
 
     @Override
     protected double convertData(double inputValue) {
-        return ((inputValue - 32) / 1.8);
+        return inputValue * 0.3048;
     }
 
     @Override
     protected int getMeasurementId() {
-        return TEMPERATURE_ID;
+        return ID;
     }
-} // TemperatureFilter
+
+} // AttitudeFilter
