@@ -1,3 +1,5 @@
+import java.util.Map;
+
 /******************************************************************************************************************
  * File: AttitudeFilter.java
  * Course: Software Architecture
@@ -16,13 +18,15 @@
 public class AttitudeFilter extends DataConverter {
 
     @Override
-    protected double convertData(double inputValue) {
-        return inputValue * 0.3048;
+    protected void convertData(Frame frameToProcess) {
+        double value = frameToProcess.getData().get(this.getMeasurementId());
+        value *= 0.3048;
+        frameToProcess.getData().put(this.getMeasurementId(), value);
     }
 
     @Override
     protected int getMeasurementId() {
-        return ATTITUDE_ID;
+        return Frame.ATTITUDE_ID;
     }
 
 } // AttitudeFilter
