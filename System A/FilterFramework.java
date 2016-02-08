@@ -32,18 +32,20 @@
  ******************************************************************************************************************/
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FilterFramework extends Thread {
     // Define filter input and output ports
-    private PipedInputStream inputReadPort = new PipedInputStream();
-    private PipedOutputStream outputWritePort = new PipedOutputStream();
+    private List<PipedInputStream> inputReadPorts = new ArrayList<>();
+    private List<PipedOutputStream> outputWritePorts = new ArrayList<>();
 
     // The following reference to a filter is used because java pipes are able to reliably
     // detect broken pipes on the input port of the filter. This variable will point to
     // the previous filter in the network and when it dies, we know that it has closed its
     // output pipe and will send no more data.
 
-    private FilterFramework inputFilter;
+    private List<FilterFramework> inputFilters = new ArrayList<>();
 
     /***************************************************************************
      * InnerClass:: EndOfStreamExeception
@@ -87,12 +89,24 @@ public class FilterFramework extends Thread {
     void connect(FilterFramework filter) {
         try {
             // Connect this filter's input to the upstream pipe's output stream
-            inputReadPort.connect(filter.outputWritePort);
-            inputFilter = filter;
+            PipedInputStream inputReadPort = new PipedInputStream();
+            inputReadPort.connect(filter.createOutputPort());
+            this.inputFilters.add(filter);
+            this.inputReadPorts.add(inputReadPort);
         } catch (Exception e) {
             System.out.println("\n" + this.getName() + " FilterFramework error connecting::" + e);
         } // try-catch
     } // connect
+
+    /**
+     * @TODO WRITE COMMENTS
+     * @return
+     */
+    private PipedOutputStream createOutputPort() {
+        PipedOutputStream outputWritePort = new PipedOutputStream();
+        this.outputWritePorts.add(outputWritePort);
+        return outputWritePort;
+    }
 
     /***************************************************************************
      * CONCRETE METHOD:: readFilterInputPort
@@ -107,7 +121,7 @@ public class FilterFramework extends Thread {
      *
      ****************************************************************************/
 
-    byte readFilterInputPort() throws EndOfStreamException {
+    byte readFilterInputPort(int portNum) throws EndOfStreamException {
         byte datum = 0;
 
         /***********************************************************************
@@ -122,9 +136,11 @@ public class FilterFramework extends Thread {
          * the input pipe is broken.
          ***********************************************************************/
 
+        PipedInputStream inputReadPort = this.inputReadPorts.get(portNum);
+
         try {
             while (inputReadPort.available() == 0) {
-                if (endOfInputStream()) {
+                if (endOfInputStream(portNum)) {
                     throw new EndOfStreamException("End of input stream reached");
                 } //if
                 sleep(250);
@@ -164,8 +180,9 @@ public class FilterFramework extends Thread {
      *
      ****************************************************************************/
 
-    void writeFilterOutputPort(byte datum) {
+    private void writeFilterOutputPort(int portNum, byte datum) {
         try {
+            PipedOutputStream outputWritePort = this.outputWritePorts.get(portNum);
             outputWritePort.write((int) datum);
             outputWritePort.flush();
         } catch (Exception Error) {
@@ -174,6 +191,16 @@ public class FilterFramework extends Thread {
 
         return;
     } // writeFilterPort
+
+    /**
+     * @TODO COMMENTS
+     * @param datum
+     */
+    void writeFilterOutputPortsAll (byte datum) {
+        for (int i = 0; i < this.outputWritePorts.size(); i++) {
+            this.writeFilterOutputPort(i, datum);
+        }
+    }
 
     /***************************************************************************
      * CONCRETE METHOD:: endOfInputStream
@@ -193,9 +220,14 @@ public class FilterFramework extends Thread {
      *
      ****************************************************************************/
 
-    private boolean endOfInputStream() {
+    private boolean endOfInputStream(int portNum) {
+        FilterFramework inputFilter = this.inputFilters.get(portNum);
         return !inputFilter.isAlive();
     } // endOfInputStream
+
+    int getNumberOfInputPorts() {
+        return this.inputReadPorts.size();
+    }
 
     /***************************************************************************
      * CONCRETE METHOD:: closePorts
@@ -211,14 +243,42 @@ public class FilterFramework extends Thread {
      *
      ****************************************************************************/
 
-    void closePorts() {
+    void closeOutputPorts() {
         try {
-            inputReadPort.close();
-            outputWritePort.close();
+            for (PipedOutputStream outputWritePort : this.outputWritePorts) {
+                outputWritePort.close();
+            }
         } catch (Exception e) {
             System.out.println("\n" + this.getName() + " ClosePorts error::" + e);
         } // catch
     } // closePorts
+
+    /**
+     *
+     * @TODO comments
+     *
+     * @param portNum
+     */
+    void closeInputPort(int portNum) {
+        PipedInputStream inputReadPort = this.inputReadPorts.get(portNum);
+        if (inputReadPort != null) {
+            try {
+                this.inputReadPorts.set(portNum, null);
+                boolean alivePortExist = false;
+                for (PipedInputStream inputPort : this.inputReadPorts) {
+                    if (inputPort != null) {
+                        alivePortExist = true;
+                        break;
+                    }
+                }
+                if (!alivePortExist) {
+                    this.closeOutputPorts();
+                }
+            } catch (Exception e) {
+                System.out.println("\n" + this.getName() + " ClosePorts error::" + e);
+            } // catch
+        }
+    }
 
     /***************************************************************************
      * CONCRETE METHOD:: run

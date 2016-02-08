@@ -46,7 +46,7 @@ public abstract class SystemFilter extends FilterFramework {
             for (i = 0; i < Frame.ID_LENGTH; i++) {
                 dataByte = (byte)((entry.getKey() >> 8 * (Frame.ID_LENGTH-1-i)) & 0xFF);
                 //transmit data further to the next filter
-                writeFilterOutputPort(dataByte);
+                writeFilterOutputPortsAll(dataByte);
                 bytesWritten++;
             }
 
@@ -56,7 +56,7 @@ public abstract class SystemFilter extends FilterFramework {
             for (i = 0; i < Frame.DATA_LENGTH; i++) {
                 dataByte = (byte)((measurement >> 8 * (Frame.DATA_LENGTH-1-i)) & 0xFF);
                 //transmit data further to the next filter
-                writeFilterOutputPort(dataByte);
+                writeFilterOutputPortsAll(dataByte);
                 bytesWritten++;
             }
         }
@@ -69,7 +69,7 @@ public abstract class SystemFilter extends FilterFramework {
      * @return Frame The frame that is built according to the received data
      * @throws EndOfStreamException
      */
-    protected Frame readCurrentFrame () throws EndOfStreamException {
+    protected Frame readCurrentFrame (int portNumber) throws EndOfStreamException {
         int currentId; //Current measurement data id (also for time)
         byte dataByte; // This is the data byte read from the stream
 
@@ -84,7 +84,7 @@ public abstract class SystemFilter extends FilterFramework {
 
             //read ID first
             for (j = 0; j < Frame.ID_LENGTH; j++) {
-                dataByte = readFilterInputPort(); // This is where we read the byte from the stream...
+                dataByte = readFilterInputPort(portNumber); // This is where we read the byte from the stream...
 
                 currentId |= dataByte & 0xFF; // We append the byte on to ID...
 
@@ -97,10 +97,10 @@ public abstract class SystemFilter extends FilterFramework {
 
             } // for
 
-            // read the measurement
+            // read the measurement data
             measurement = 0;
             for (j = 0; j < Frame.DATA_LENGTH; j++) {
-                dataByte = readFilterInputPort();
+                dataByte = readFilterInputPort(portNumber);
                 bytesRead++; // Increment the byte count
 
                 measurement |= dataByte & 0xFF; // We append the byte on to measurement...
