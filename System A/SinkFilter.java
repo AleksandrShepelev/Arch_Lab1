@@ -105,8 +105,8 @@ public class SinkFilter extends SystemFilter {
             return;
         }
 
-        for (int i = 0; i < outputColumn.length; i++) {
-            fileWriter.write(String.format("%-24s",getHeader(outputColumn[i])));
+        for (Integer anOutputColumn1 : outputColumn) {
+            fileWriter.write(String.format("%-24s", getHeader(anOutputColumn1)));
         }
 
         /*************************************************************
@@ -114,8 +114,6 @@ public class SinkFilter extends SystemFilter {
          **************************************************************/
 
         System.out.print("\n" + this.getName() + "::Sink Reading ");
-
-        Frame currentFrame;
 
         boolean sourcesExist = true;
 
@@ -127,13 +125,20 @@ public class SinkFilter extends SystemFilter {
                 }
 
                 try {
-                    currentFrame = this.readCurrentFrame(portNum);
+                    this.currentFrame = this.readCurrentFrame(portNum);
+
                     fileWriter.write("\n");
-                    for (int i = 0; i < outputColumn.length; i++) {
-                        fileWriter.write(String.format("%-24s",convertToOutput(outputColumn[i], currentFrame.data.get(outputColumn[i]))));
+                    for (Integer anOutputColumn : outputColumn) {
+                        fileWriter.write(String.format("%-24s", convertToOutput(anOutputColumn, this.currentFrame.getData().get(anOutputColumn))));
                     }
 
                 } catch (EndOfStreamException e) {
+
+                    //we should append the
+                    fileWriter.write("\n");
+                    for (Integer anOutputColumn : outputColumn) {
+                        fileWriter.write(String.format("%-24s", convertToOutput(anOutputColumn, this.currentFrame.getData().get(anOutputColumn))));
+                    }
 
                     /*******************************************************************************
                      * The EndOfStreamExeception below is thrown when you reach end of the input stream

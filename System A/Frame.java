@@ -30,7 +30,7 @@ public class Frame {
     public final static int BANK_ID = 5; // Bank identity (Like "kren" in Russian analogues)
     public final static int EXTRAPOLATED_PRESSURE = 6; // Pressure that was extrapolated
 
-    protected Map <Integer, Double> data = new HashMap<>(); // Hash map with the data
+    private Map <Integer, Double> data = new HashMap<>(); // Hash map with the data
 
     public Frame () {}
 
