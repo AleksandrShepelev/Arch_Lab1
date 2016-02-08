@@ -44,7 +44,7 @@ public class SourceFilter extends FilterFramework {
             while (true) {
                 dataByte = in.readByte();
                 bytesRead++;
-                writeFilterOutputPort(dataByte);
+                writeFilterOutputPortsAll(dataByte);
                 bytesWritten++;
             } // while
 
@@ -58,7 +58,7 @@ public class SourceFilter extends FilterFramework {
             System.out.println("\n" + this.getName() + "::End of file reached...");
             try {
                 in.close();
-                closePorts();
+                closeOutputPorts();
                 System.out.println("\n" + this.getName() + "::Read file complete, bytes read::" +
                         bytesRead + " bytes written: " + bytesWritten);
             } catch (Exception closeerr) {

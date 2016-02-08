@@ -19,23 +19,39 @@
 public abstract class ExtrapolatorFilter extends SystemFilter {
 
     public void run() {
-        int currentId = 0; //Current measurement data id (also for time)
-        byte dataByte = 0; // This is the data byte read from the stream
 
-        long measurement; // This is the word used to store all measurements - conversions are illustrated.
-        int i; // This is a loop counter
+        boolean sourcesExist = true;
 
-        boolean needToConvert = false; // flag states if there is a need to convert the data block
-
-        // Next we write a message to the terminal to let the world know we are alive...
-        System.out.print("\n" + this.getName() + "::" + this.getClass().getName() + " Reading ");
-
-        while (true) {
+        while (sourcesExist) {
             /*************************************************************
-             * Here we read a byte and write a byte
-             * if we meet the necessary data ID to be converted than we stop the output
-             * convert the data and then continue transmitting to the output
+             * EXTRAPOLATION DESCRIPTION
              **************************************************************/
+
+            for (int portNum = 0; portNum < this.getNumberOfOpenedInputPorts(); portNum++) {
+
+                if (!this.inputPortIsAlive(portNum)) {
+                    continue;
+                }
+
+                try {
+
+                    this.readCurrentFrame(portNum);
+
+                    // DO YOUR EXTRAPOLATION HERE !!!
+
+                    this.transmitCurrentFrame (this.currentFrame);
+
+                } catch (EndOfStreamException e) {
+                    this.transmitCurrentFrame (this.currentFrame);
+                    closeInputPort(portNum);
+                    System.out.print("\n" + this.getName() + "::Middle Exiting; bytes read: " +
+                            bytesRead + " bytes written: " + bytesWritten);
+                    if (this.getNumberOfOpenedInputPorts() < 1) {
+                        sourcesExist = false;
+                        break;
+                    }
+                } // try-catch
+            }
 
         } // while
     } // run
