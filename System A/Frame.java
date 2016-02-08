@@ -9,7 +9,7 @@
  *
  * This class represents the frame with all data inside it
  * It helps to manage data in a systematic structured way and access any frame packet in case
- * of data processing necessities
+ * of data processing necessities. By "Packet" we mean here the structure represented by ID + DATA BYTES (4 + 8)
  *
  *
  ******************************************************************************************************************/
@@ -19,24 +19,26 @@ import java.util.HashMap;
 
 public class Frame {
 
-    //72 bytes per frame (4 + 8) * 6 = 72
-
     public static final int DATA_LENGTH = 8; // This is the length of all measurements (including time) in bytes per one data packet
     public static final int ID_LENGTH = 4; // This is the length of IDs in the byte stream
     public static final int PACKETS = 6; // How many data packets inside one frame (including time)
 
-    public final static int TIME_ID = 0;
-    public final static int VELOCITY_ID = 1;
-    public final static int ATTITUDE_ID = 2;
-    public final static int PRESSURE_ID = 3;
-    public final static int TEMPERATURE_ID = 4;
-    public final static int BANK_ID = 5;
+    public final static int TIME_ID = 0; // Time identity
+    public final static int VELOCITY_ID = 1; // Velocity identity
+    public final static int ATTITUDE_ID = 2; // Attitude identity
+    public final static int PRESSURE_ID = 3; // Pressure identity
+    public final static int TEMPERATURE_ID = 4; // Temperature identity
+    public final static int BANK_ID = 5; // Bank identity (Like "kren" in Russian analogues)
 
-    protected Map <Integer, Double> data = new HashMap<>();
+    protected Map <Integer, Double> data = new HashMap<>(); // Hash map with the data
 
     public Frame () {}
 
-    public synchronized Map <Integer, Double> getData() {
+    /**
+     *
+     * @return Map Key-Value storage with data by its ID
+     */
+    public Map <Integer, Double> getData() {
         return this.data;
     }
 }
