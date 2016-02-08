@@ -20,24 +20,13 @@ public abstract class DataConverter extends SystemFilter {
 
     public void run() {
 
-        int currentId = 0; //Current measurement data id (also for time)
-        byte dataByte = 0; // This is the data byte read from the stream
-
-        long measurement; // This is the word used to store all measurements - conversions are illustrated.
-        int i, j; // This is a loop counter
-
-        boolean needToConvert = false; // flag states if there is a need to convert the data block
-
-        Frame currentFrame = null;
-
-        // Next we write a message to the terminal to let the world know we are alive...
-        //System.out.print("\n" + this.getName() + "::" + this.getClass().getName() + " Reading ");
+        Frame currentFrame;
 
         while (true) {
             /*************************************************************
-             * Here we read a byte and write a byte
-             * if we meet the necessary data ID to be converted than we stop the output
-             * convert the data and then continue transmitting to the output
+             * Here we read the data byte by byte
+             * Buffer inside the Frame structure
+             * And then convert the data applying necessary filter
              **************************************************************/
 
             try {
@@ -47,13 +36,13 @@ public abstract class DataConverter extends SystemFilter {
                 if (currentFrame.getData().containsKey(this.getMeasurementId())) {
                     System.out.println(this.getClass().getName() + " converted value " + currentFrame.getData().get(this.getMeasurementId()));
                     this.convertData(currentFrame);
-                    System.out.print(" to " + currentFrame.getData().get(this.getMeasurementId()));
+                    System.out.println(" to " + currentFrame.getData().get(this.getMeasurementId()));
                 }
 
                 this.transmitCurrentFrame (currentFrame);
 
             } catch (EndOfStreamException e) {
-                //closePorts();
+                closePorts();
                 System.out.print("\n" + this.getName() + "::Middle Exiting; bytes read: " +
                         bytesRead + " bytes written: " + bytesWritten);
                 break;
