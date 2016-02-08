@@ -4,27 +4,30 @@
  * Project: Assignment 1
  * Copyright: Copyright (c) 2003 Carnegie Mellon University
  * Versions: 1.0 November 2008 - Sample Pipe and Filter code (ajl).
- *
+ * <p>
  * Description:
- *
+ * <p>
  * This class serves as an example for using the SinkFilterTemplate for creating a sink filter. This
  * particular filter reads some input from the filter's input port and does the following:
- *
+ * <p>
  * 1) It parses the input stream and "decommutates" the measurement ID 2) It parses the input steam
  * for measurements and "decommutates" measurements, storing the bits in a long word.
- *
+ * <p>
  * This filter illustrates how to convert the byte stream data from the upstream filter into usable
  * data found in the stream: namely time (long type) and measurements (double type).
- *
- *
+ * <p>
+ * <p>
  * Parameters: None
- *
+ * <p>
  * Internal Methods: None
- *
  ******************************************************************************************************************/
+
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.*; // This class is used to interpret time words
 import java.text.SimpleDateFormat; // This class is used to format and write time in a string
-                                   // format.
+// format.
 
 public class SinkFilter extends FilterFramework {
 
@@ -33,7 +36,9 @@ public class SinkFilter extends FilterFramework {
          * timeStamp is used to compute time using java.util's Calendar class. timeStampFormat is
          * used to format the time value so that it can be easily printed to the terminal.
          *************************************************************************************/
-
+        String fileName = "OutputA.dat"; // Input data file.
+        String encoding = "UTF-8";
+        PrintWriter fileWriter;
         Calendar timeStamp = Calendar.getInstance();
         SimpleDateFormat timeStampFormat = new SimpleDateFormat("yyyy MM dd::hh:mm:ss:SSS");
 
@@ -46,6 +51,16 @@ public class SinkFilter extends FilterFramework {
         long measurement; // This is the word used to store all measurements - conversions are illustrated.
         int id; // This is the measurement id
         int i; // This is a loop counter
+
+        /* */
+        try {
+            fileWriter = new PrintWriter(fileName, encoding);
+        } catch (FileNotFoundException e) {
+          System.out.print("\n"+fileName+ " is not found or locked by other process");
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
 
         /*************************************************************
          * First we announce to the world that we are alive...
@@ -96,7 +111,7 @@ public class SinkFilter extends FilterFramework {
                     // If this is not the last byte, then slide the
                     if (i != measurementLength - 1) { // previously appended byte to the left by one byte
                         measurement = measurement << 8; // to make room for the next byte we append to the
-                                                        // measurement
+                        // measurement
                     } // if
 
                     bytesRead++; // Increment the byte count
@@ -126,12 +141,13 @@ public class SinkFilter extends FilterFramework {
                  * the time stamp and the data associated with the ID we are interested in.
                  ****************************************************************************/
 
-                if (id == 3) {
+          /*      if (id == 3) {
                     System.out.print(timeStampFormat.format(timeStamp.getTime()) + " ID = " + id +
                             " " + Double.longBitsToDouble(measurement));
                 } // if
+                System.out.print("\n");*/
 
-                System.out.print("\n");
+
             } catch (EndOfStreamException e) {
 
                 /*******************************************************************************
