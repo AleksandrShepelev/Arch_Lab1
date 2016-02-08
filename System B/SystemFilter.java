@@ -20,4 +20,11 @@ public abstract class SystemFilter extends FilterFramework {
     protected int bytesRead = 0; // Number of bytes read from the input file.
     protected int bytesWritten = 0; // Number of bytes written to the stream.
 
+    protected final static int TIME_ID = 0;
+    protected final static int VELOCITY_ID = 1;
+    protected final static int ATTITUDE_ID = 2;
+    protected final static int PRESSURE_ID = 3;
+    protected final static int TEMPERATURE_ID = 4;
+    protected final static int BANK_ID = 5;
+
 }
