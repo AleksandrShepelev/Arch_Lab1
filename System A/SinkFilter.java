@@ -41,6 +41,7 @@ public class SinkFilter extends FilterFramework {
         PrintWriter fileWriter;
         Calendar timeStamp = Calendar.getInstance();
         SimpleDateFormat timeStampFormat = new SimpleDateFormat("yyyy MM dd::hh:mm:ss:SSS");
+        SimpleDateFormat timeStampOutputFormat = new SimpleDateFormat("yyyy:MM:dd::hh:mm:ss");
 
         int measurementLength = 8; // This is the length of all measurements (including time) in bytes
         int idLength = 4; // This is the length of IDs in the byte stream
@@ -52,14 +53,15 @@ public class SinkFilter extends FilterFramework {
         int id; // This is the measurement id
         int i; // This is a loop counter
 
-        /* */
+        /*here we initialize file reader. If something goes wrong we'll get exception here*/
         try {
             fileWriter = new PrintWriter(fileName, encoding);
         } catch (FileNotFoundException e) {
           System.out.print("\n"+fileName+ " is not found or locked by other process");
-            e.printStackTrace();
+            return;
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            System.out.print("\n"+encoding+ " is not supported");
+            return;
         }
 
         /*************************************************************
