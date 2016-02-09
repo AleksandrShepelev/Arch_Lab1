@@ -6,8 +6,7 @@ import java.util.List;
  */
 public class Utils {
 
-    public static ArrayList<Frame> InsertIntoSortedList(ArrayList<Frame> list, Frame element, int sortParam){
-
+    public static void InsertIntoSortedList(ArrayList<Frame> list, Frame element, int sortParam){
         boolean isInserted = false;
 
         for (int i=0; i < list.size(); i++){
@@ -21,8 +20,9 @@ public class Utils {
         }
 
         if (!isInserted) {
+            //System.out.println("inserted");
             list.add(element);
         }
-        return list;
+        //return list;
     }
 }
