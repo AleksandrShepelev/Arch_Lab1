@@ -24,36 +24,35 @@ public class Plumber {
          * Here we instantiate four filters.
          ****************************************************************************/
 
-        SourceFilter sourceA = new SourceFilter("SubSetA.dat");
-        SourceFilter sourceB = new SourceFilter("SubSetB.dat");
+        SourceFilter source = new SourceFilter();
         TemperatureFilter temperature = new TemperatureFilter();
         AttitudeFilter attitude = new AttitudeFilter();
         SinkFilter sink = new SinkFilter();
+        FrameFilter frameFilter = new FrameFilter();
+
+        SourceFilter sourceA = new SourceFilter("SubSetA.dat");
+        SourceFilter sourceB = new SourceFilter("SubSetB.dat");
         MergerFilter merger =new MergerFilter();
 
         /****************************************************************************
          * Here we connect the filters starting with the sink filter (filter1) which we connect to
          * filter2 the middle filter. Then we connect Filter2 to the source filter (filter3).
          ****************************************************************************/
+        //System A test
 
-        sink.connect(merger); // This esstially says, "connect sink input port to attitude output port
-        merger.connect(sourceA);
-        merger.connect(sourceB);
-
-        /*sink.connect(attitude); // This esstially says, "connect sink input port to attitude output port
+        sink.connect(attitude); // This esstially says, "connect sink input port to attitude output port
         attitude.connect(temperature); // This esstially says, "connect attitude input port to temperature output port
-        temperature.connect(source); // This esstially says, "connect temperature intput port to source output port
-        */
+        temperature.connect(frameFilter); // This esstially says, "connect temperature intput port to source output port
+        frameFilter.connect(source);
 
         /****************************************************************************
          * Here we start the filters up. All-in-all,... its really kind of boring.
          ****************************************************************************/
 
-        sourceA.start();
-        sourceB.start();
-        merger.start();
-        //temperature.start();
-        //attitude.start();
+        source.start();
+        frameFilter.start();
+        temperature.start();
+        attitude.start();
         sink.start();
     } // main
 } // Plumber

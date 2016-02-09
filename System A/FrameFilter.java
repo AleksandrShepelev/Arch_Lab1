@@ -1,5 +1,5 @@
 /******************************************************************************************************************
- * File: DataConverter.java
+ * File: FrameFilter.java
  * Course: Software Architecture
  * Project: Assignment 1
  * Copyright: SKB Kontur Team (MSIT SE)
@@ -7,31 +7,24 @@
  *
  * Description:
  *
- * This class represents the abstract filter responsible for converting any data from one unit to another
- * The binary data comes to the input as a sequence of bytes one-by-one
- * The output data is sent as a sequence of bytes one-by-one
- *
- * To process specific units children classes should implement the method convertData
+ * This is filter for unnecessary data
  *
  *
  ******************************************************************************************************************/
 
-public abstract class DataConverter extends SystemFilter {
+public class FrameFilter extends SystemFilter {
+
+    private int[] filterElements = new int[] {Frame.BANK_ID, Frame.EXTRAPOLATED_PRESSURE, Frame.VELOCITY_ID, Frame.PRESSURE_ID};
 
     public void run() {
 
         boolean sourcesExist = true;
-
         Frame currentFrame;
 
         while (sourcesExist) {
             /*************************************************************
              * Here we read the data byte by byte and buffer them
              * inside the Frame structure
-             * And then convert the data applying necessary data converter
-             *
-             * We read from all input ports we have until all input pipes are closed
-             * only after that we also close other ports and break the while loop
              *
              **************************************************************/
 
@@ -43,8 +36,10 @@ public abstract class DataConverter extends SystemFilter {
 
                 currentFrame = this.readCurrentFrame(portNum);
 
-                if (currentFrame.getData().containsKey(this.getMeasurementId())) {
-                    this.convertData(currentFrame);
+                for (int element : this.filterElements) {
+                    if (currentFrame.getData().containsKey(element)) {
+                        currentFrame.getData().remove(element);
+                    }
                 }
 
                 this.transmitCurrentFrame (currentFrame);
@@ -63,18 +58,4 @@ public abstract class DataConverter extends SystemFilter {
 
         } // while
     } // run
-
-    /**
-     * Converts data from one unit to another
-     *
-     * @param frameToProcess Frame input frame to process
-     */
-    protected abstract void convertData(Frame frameToProcess);
-
-    /**
-     * Returns ID for the measurement data to be converted
-     *
-     * @return int the ID for the measurement
-     */
-    protected abstract int getMeasurementId();
 }

@@ -15,15 +15,16 @@
 
 public class TemperatureFilter extends DataConverter {
 
-    private final static int ID = 4;
-
     @Override
-    protected double convertData(double inputValue) {
-        return ((inputValue - 32) / 1.8);
+    protected void convertData(Frame frameToProcess) {
+        Double value = frameToProcess.getData().get(this.getMeasurementId());
+        value = (value - 32) / 1.8;
+        frameToProcess.getData().put(this.getMeasurementId(), value);
     }
 
     @Override
     protected int getMeasurementId() {
-        return ID;
+        return Frame.TEMPERATURE_ID;
     }
+
 } // TemperatureFilter

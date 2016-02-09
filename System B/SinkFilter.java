@@ -4,48 +4,110 @@
  * Project: Assignment 1
  * Copyright: Copyright (c) 2003 Carnegie Mellon University
  * Versions: 1.0 November 2008 - Sample Pipe and Filter code (ajl).
- *
+ * <p>
  * Description:
- *
+ * <p>
  * This class serves as an example for using the SinkFilterTemplate for creating a sink filter. This
  * particular filter reads some input from the filter's input port and does the following:
- *
+ * <p>
  * 1) It parses the input stream and "decommutates" the measurement ID 2) It parses the input steam
  * for measurements and "decommutates" measurements, storing the bits in a long word.
- *
+ * <p>
  * This filter illustrates how to convert the byte stream data from the upstream filter into usable
  * data found in the stream: namely time (long type) and measurements (double type).
- *
- *
+ * <p>
+ * <p>
  * Parameters: None
- *
+ * <p>
  * Internal Methods: None
- *
  ******************************************************************************************************************/
+
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.text.DecimalFormat;
 import java.util.*; // This class is used to interpret time words
 import java.text.SimpleDateFormat; // This class is used to format and write time in a string
-                                   // format.
+// format.
 
-public class SinkFilter extends FilterFramework {
+public class SinkFilter extends SystemFilter {
+    private String convertToOutput(int id, double measurement) {
+        Calendar timeStamp = Calendar.getInstance();
+        SimpleDateFormat timeStampOutputFormat = new SimpleDateFormat("yyyy:MM:dd:hh:mm:ss");
+        DecimalFormat attitudeFormat = new DecimalFormat("000000.00000");
+        DecimalFormat tempFormat = new DecimalFormat("000.00000");
+        DecimalFormat pressureFormat = new DecimalFormat("00.00000");
+        DecimalFormat velocityFormat = new DecimalFormat("000000.00000");
+        DecimalFormat bankFormat = new DecimalFormat("000000.00000");
+        if (id == Frame.TIME_ID) {
+            timeStamp.setTimeInMillis(Double.doubleToLongBits(measurement));
+        }
 
+        switch (id) {
+            case Frame.TIME_ID:
+                return timeStampOutputFormat.format(timeStamp.getTime());
+            case Frame.VELOCITY_ID:
+                return velocityFormat.format(measurement);
+            case Frame.ATTITUDE_ID:
+                return attitudeFormat.format(measurement);
+            case Frame.PRESSURE_ID:
+                return pressureFormat.format(measurement);
+            case Frame.TEMPERATURE_ID:
+                return tempFormat.format(measurement);
+            case Frame.BANK_ID:
+                return bankFormat.format(measurement);
+            default:
+                return Double.toString(measurement);
+        }
+    }
+
+    private String getHeader(int id) {
+        switch (id) {
+            case Frame.TIME_ID:
+                return "Time:";
+            case Frame.VELOCITY_ID:
+                return "Velosity(sec):";
+            case Frame.ATTITUDE_ID:
+                return "Attitude(m):";
+            case Frame.PRESSURE_ID:
+                return  "Pressure(psi):";
+            case Frame.TEMPERATURE_ID:
+                return "Temperature(C):";
+            case Frame.BANK_ID:
+                return "Bank(m):";
+            default:
+                return  "Undefined header:";
+        }
+    }
     public void run() {
         /************************************************************************************
          * timeStamp is used to compute time using java.util's Calendar class. timeStampFormat is
          * used to format the time value so that it can be easily printed to the terminal.
          *************************************************************************************/
-
+        String fileName = "OutputA.dat"; // Input data file.
+        String encoding = "UTF-8";
+        PrintWriter fileWriter;
         Calendar timeStamp = Calendar.getInstance();
         SimpleDateFormat timeStampFormat = new SimpleDateFormat("yyyy MM dd::hh:mm:ss:SSS");
 
-        int measurementLength = 8; // This is the length of all measurements (including time) in bytes
-        int idLength = 4; // This is the length of IDs in the byte stream
+        /* here should be put ID's of data that should be output */
+        Integer[] outputColumn = {Frame.TIME_ID, Frame.TEMPERATURE_ID, Frame.ATTITUDE_ID};
 
-        byte dataByte = 0; // This is the data byte read from the stream
-        int bytesRead = 0; // This is the number of bytes read from the stream
 
-        long measurement; // This is the word used to store all measurements - conversions are illustrated.
-        int id; // This is the measurement id
-        int i; // This is a loop counter
+        /*here we initialize file reader. If something goes wrong we'll get exception here*/
+        try {
+            fileWriter = new PrintWriter(fileName, encoding);
+        } catch (FileNotFoundException e) {
+            System.out.print("\n" + fileName + " is not found or locked by other process");
+            return;
+        } catch (UnsupportedEncodingException e) {
+            System.out.print("\n" + encoding + " is not supported");
+            return;
+        }
+
+        for (Integer anOutputColumn1 : outputColumn) {
+            fileWriter.write(String.format("%-24s", getHeader(anOutputColumn1)));
+        }
 
         /*************************************************************
          * First we announce to the world that we are alive...
@@ -53,97 +115,46 @@ public class SinkFilter extends FilterFramework {
 
         System.out.print("\n" + this.getName() + "::Sink Reading ");
 
-        while (true) {
-            try {
-                /***************************************************************************
-                 * // We know that the first data coming to this filter is going to be an ID and //
-                 * that it is IdLength long. So we first decommutate the ID bytes.
-                 ****************************************************************************/
+        boolean sourcesExist = true;
 
-                id = 0;
+        while (sourcesExist) {
+            for (int portNum = 0; portNum < this.getNumberOfOpenedInputPorts(); portNum++) {
 
-                for (i = 0; i < idLength; i++) {
-                    dataByte = readFilterInputPort(); // This is where we read the byte from the stream...
+                if (!this.inputPortIsAlive(portNum)) {
+                    continue;
+                }
 
-                    id = id | (dataByte & 0xFF); // We append the byte on to ID...
+                try {
+                    this.currentFrame = this.readCurrentFrame(portNum);
 
-                    // If this is not the last byte, then slide the
-                    if (i != idLength - 1) { // previously appended byte to the left by one byte
-                        id = id << 8; // to make room for the next byte we append to the ID
-                    } // if
+                    fileWriter.write("\n");
+                    for (Integer anOutputColumn : outputColumn) {
+                        fileWriter.write(String.format("%-24s", convertToOutput(anOutputColumn, this.currentFrame.getData().get(anOutputColumn))));
+                    }
 
-                    bytesRead++; // Increment the byte count
-                } // for
+                } catch (EndOfStreamException e) {
 
-                /****************************************************************************
-                 * Here we read measurements. All measurement data is read as a stream of bytes
-                 * and stored as a long value. This permits us to do bitwise manipulation that
-                 * is necessary to convert the byte stream into data words. Note that bitwise
-                 * manipulation is not permitted on any kind of floating point types in Java. If
-                 * the id = 0 then this is a time value and is therefore a long value - no
-                 * problem. However, if the id is something other than 0, then the bits in the
-                 * long value is really of type double and we need to convert the value using
-                 * Double.longBitsToDouble(long val) to do the conversion which is illustrated.
-                 * below.
-                 *****************************************************************************/
+                    //we should append the
+                    fileWriter.write("\n");
+                    for (Integer anOutputColumn : outputColumn) {
+                        fileWriter.write(String.format("%-24s", convertToOutput(anOutputColumn, this.currentFrame.getData().get(anOutputColumn))));
+                    }
 
-                measurement = 0;
+                    /*******************************************************************************
+                     * The EndOfStreamExeception below is thrown when you reach end of the input stream
+                     * (duh). At this point, the filter ports are closed and a message is written letting
+                     * the user know what is going on.
+                     ********************************************************************************/
+                    this.closeInputPort(portNum);
+                    System.out.print("\n" + this.getName() + "::Sink Exiting; bytes read: " + bytesRead);
 
-                for (i = 0; i < measurementLength; i++) {
-                    dataByte = readFilterInputPort();
-                    measurement = measurement | (dataByte & 0xFF); // We append the byte on to measurement...
-
-                    // If this is not the last byte, then slide the
-                    if (i != measurementLength - 1) { // previously appended byte to the left by one byte
-                        measurement = measurement << 8; // to make room for the next byte we append to the
-                                                        // measurement
-                    } // if
-
-                    bytesRead++; // Increment the byte count
-                } // if
-
-                /****************************************************************************
-                 * Here we look for an ID of 0 which indicates this is a time measurement.
-                 * Every frame begins with an ID of 0, followed by a time stamp which correlates
-                 * to the time that each proceeding measurement was recorded. Time is stored in
-                 * milliseconds since Epoch. This allows us to use Java's calendar class to
-                 * retrieve time and also use text format classes to format the output into a
-                 * form humans can read. So this provides great flexibility in terms of dealing
-                 * with time arithmetically or for string display purposes. This is illustrated
-                 * below.
-                 ****************************************************************************/
-
-                if (id == 0) {
-                    timeStamp.setTimeInMillis(measurement);
-                } // if
-
-                /****************************************************************************
-                 * Here we pick up a measurement (ID = 3 in this case), but you can pick up
-                 * any measurement you want to. All measurements in the stream are "decommutated"
-                 * by this class. Note that all data measurements are double types This
-                 * illustrates how to convert the bits read from the stream into a double type.
-                 * Its pretty simple using Double.longBitsToDouble(long value). So here we print
-                 * the time stamp and the data associated with the ID we are interested in.
-                 ****************************************************************************/
-
-                if (id == 3) {
-                    System.out.print(timeStampFormat.format(timeStamp.getTime()) + " ID = " + id +
-                            " " + Double.longBitsToDouble(measurement));
-                } // if
-
-                System.out.print("\n");
-            } catch (EndOfStreamException e) {
-
-                /*******************************************************************************
-                 * The EndOfStreamExeception below is thrown when you reach end of the input stream
-                 * (duh). At this point, the filter ports are closed and a message is written letting
-                 * the user know what is going on.
-                 ********************************************************************************/
-
-                closePorts();
-                System.out.print("\n" + this.getName() + "::Sink Exiting; bytes read: " + bytesRead);
-                break;
-            } // catch
+                    if (this.getNumberOfOpenedInputPorts() < 1) {
+                        fileWriter.close();
+                        sourcesExist = false;
+                        break;
+                    }
+                }
+            }
         } // while
     } // run
 } // SinkFilter

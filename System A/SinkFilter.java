@@ -116,6 +116,7 @@ public class SinkFilter extends SystemFilter {
         System.out.print("\n" + this.getName() + "::Sink Reading ");
 
         boolean sourcesExist = true;
+        Frame currentFrame;
 
         while (sourcesExist) {
             for (int portNum = 0; portNum < this.getNumberOfOpenedInputPorts(); portNum++) {
@@ -124,36 +125,22 @@ public class SinkFilter extends SystemFilter {
                     continue;
                 }
 
-                try {
-                    this.currentFrame = this.readCurrentFrame(portNum);
+                    currentFrame = this.readCurrentFrame(portNum);
                     System.out.println("\nframe: " + currentFrame.getData());
                     fileWriter.write("\n");
                     for (Integer anOutputColumn : outputColumn) {
-                        fileWriter.write(String.format("%-24s", convertToOutput(anOutputColumn, this.currentFrame.getData().get(anOutputColumn))));
+                        fileWriter.write(String.format("%-24s", convertToOutput(anOutputColumn, currentFrame.getData().get(anOutputColumn))));
                     }
 
-                } catch (EndOfStreamException e) {
+                this.checkInputPortForClose (portNum);
 
-                    //we should append the
-                    fileWriter.write("\n");
-                    for (Integer anOutputColumn : outputColumn) {
-                        fileWriter.write(String.format("%-24s", convertToOutput(anOutputColumn, this.currentFrame.getData().get(anOutputColumn))));
-                    }
-
-                    /*******************************************************************************
-                     * The EndOfStreamExeception below is thrown when you reach end of the input stream
-                     * (duh). At this point, the filter ports are closed and a message is written letting
-                     * the user know what is going on.
-                     ********************************************************************************/
-                    this.closeInputPort(portNum);
+                if (this.getNumberOfOpenedInputPorts() < 1) {
                     System.out.print("\n" + this.getName() + "::Sink Exiting; bytes read: " + bytesRead);
-
-                    if (this.getNumberOfOpenedInputPorts() < 1) {
-                        fileWriter.close();
-                        sourcesExist = false;
-                        break;
-                    }
+                    fileWriter.close();
+                    sourcesExist = false;
+                    break;
                 }
+
             }
         } // while
     } // run

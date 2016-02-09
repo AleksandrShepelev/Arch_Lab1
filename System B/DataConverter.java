@@ -16,120 +16,60 @@
  *
  ******************************************************************************************************************/
 
-public abstract class DataConverter extends FilterFramework {
-
-    protected static final int measurementLength = 8; // This is the length of all measurements (including time) in bytes
-    protected static final int idLength = 4; // This is the length of IDs in the byte stream
+public abstract class DataConverter extends SystemFilter {
 
     public void run() {
-        int bytesRead = 0; // Number of bytes read from the input file.
-        int bytesWritten = 0; // Number of bytes written to the stream.
 
-        int currentId = 0; //Current measurement data id (also for time)
-        byte dataByte = 0; // This is the data byte read from the stream
+        boolean sourcesExist = true;
 
-        long measurement; // This is the word used to store all measurements - conversions are illustrated.
-        int i; // This is a loop counter
-
-        boolean needToConvert = false; // flag states if there is a need to convert the data block
-
-        // Next we write a message to the terminal to let the world know we are alive...
-        System.out.print("\n" + this.getName() + "::" + this.getClass().getName() + " Reading ");
-
-        while (true) {
+        while (sourcesExist) {
             /*************************************************************
-             * Here we read a byte and write a byte
-             * if we meet the necessary data ID to be converted than we stop the output
-             * convert the data and then continue transmitting to the output
+             * Here we read the data byte by byte and buffer them
+             * inside the Frame structure
+             * And then convert the data applying necessary data converter
+             *
+             * We read from all input ports we have until all input pipes are closed
+             * only after that we also close other ports and break the while loop
+             *
              **************************************************************/
 
-            try {
+            for (int portNum = 0; portNum < this.getNumberOfOpenedInputPorts(); portNum++) {
 
-                currentId = 0;
+                if (!this.inputPortIsAlive(portNum)) {
+                    continue;
+                }
 
-                //read ID first
-                for (i = 0; i < idLength; i++) {
-                    dataByte = readFilterInputPort(); // This is where we read the byte from the stream...
+                try {
 
-                    currentId = currentId | (dataByte & 0xFF); // We append the byte on to ID...
+                    this.readCurrentFrame(portNum);
 
-                    // If this is not the last byte, then slide the
-                    if (i != idLength - 1) { // previously appended byte to the left by one byte
-                        currentId = currentId << 8; // to make room for the next byte we append to the ID
-                    } // if
-
-                    bytesRead++; // Increment the byte count
-
-                    //transmit data further to the next filter
-                    writeFilterOutputPort(dataByte);
-                    bytesWritten++;
-
-                } // for
-
-                needToConvert = (currentId == this.getMeasurementId());
-
-                //very difficult logic: if we don't need to convert the data
-                //then just resend byte further
-                measurement = 0;
-                for (i = 0; i < measurementLength; i++) {
-                    dataByte = readFilterInputPort();
-                    bytesRead++; // Increment the byte count
-
-                    if (needToConvert) {
-                        measurement |= dataByte & 0xFF; // We append the byte on to measurement...
-
-                        // If this is not the last byte, then slide the
-                        if (i != measurementLength - 1) { // previously appended byte to the left by one byte
-                            measurement = measurement << 8; // to make room for the next byte we append to the
-                            // measurement
-                        } // if
-                    } else {
-                        writeFilterOutputPort(dataByte);
-                        bytesWritten++;
+                    if (this.currentFrame.getData().containsKey(this.getMeasurementId())) {
+                        this.convertData(this.currentFrame);
                     }
 
-                } // if
+                    this.transmitCurrentFrame (this.currentFrame);
 
-                // if this is the ID to be converted, then get the data and convert it
-                if (currentId == this.getMeasurementId()) {
-
-                    System.out.print("\n" + this.getName() + "::" + this.getClass().getName() + " Converted " +
-                            "" + Double.longBitsToDouble(measurement) + " to ");
-                    double converted = this.convertData(Double.longBitsToDouble(measurement));
-
-                    System.out.print(converted + "\n");
-                    measurement = Double.doubleToLongBits(converted);
-
-                } // if
-
-                // if something was converted, than data should be sent this way
-                if (needToConvert) {
-                    // send further byte by byte
-                    // we should start from higher bites to lower to preserve the order
-                    for (i = 0; i < measurementLength; i++) {
-                        dataByte = (byte)((measurement >> 8 * (7-i)) & 0xFF);
-                        //transmit data further to the next filter
-                        writeFilterOutputPort(dataByte);
-                        bytesWritten++;
+                } catch (EndOfStreamException e) {
+                    this.transmitCurrentFrame (this.currentFrame);
+                    closeInputPort(portNum);
+                    System.out.print("\n" + this.getName() + "::Middle Exiting; bytes read: " +
+                            bytesRead + " bytes written: " + bytesWritten);
+                    if (this.getNumberOfOpenedInputPorts() < 1) {
+                        sourcesExist = false;
+                        break;
                     }
-                } // if
+                } // try-catch
+            }
 
-            } catch (EndOfStreamException e) {
-                closePorts();
-                System.out.print("\n" + this.getName() + "::Middle Exiting; bytes read: " +
-                        bytesRead + " bytes written: " + bytesWritten);
-                break;
-            } // try-catch
         } // while
     } // run
 
     /**
      * Converts data from one unit to another
      *
-     * @param inputValue double input value
-     * @return double converted value
+     * @param frameToProcess Frame input frame to process
      */
-    protected abstract double convertData(double inputValue);
+    protected abstract void convertData(Frame frameToProcess);
 
     /**
      * Returns ID for the measurement data to be converted
