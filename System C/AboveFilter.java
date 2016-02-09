@@ -35,20 +35,10 @@ public class AboveFilter extends SystemFilter {
                 // this is the frame read from input port
                 currentFrame = this.readCurrentFrame(portNum);
 
-                /**
-                 * YOUR CODE GOES HERE
-                 */
-
-                // some code
-                // another code
-
-                // we ALWAYS should transmit frame before closing port, because if it is the last port
-                // it will also close the output port and it can hurt...
-                // so if you need to process a lot of data here you'd better collect it (for instance many frames)
-                // then process and only after all data is processed transmit frames one by one
-                // and don't forget to take the towell and check for ports to close
-                if (currentFrame.getData().get(Frame.ATTITUDE_ID)>=level)
-                this.transmitCurrentFrame (currentFrame);
+                // filter data above 10k
+                if (currentFrame.getData().get(Frame.ATTITUDE_ID) >= level) {
+                    this.transmitCurrentFrame (currentFrame);
+                }
 
                 // actually this closes the port
                 this.checkInputPortForClose (portNum);
