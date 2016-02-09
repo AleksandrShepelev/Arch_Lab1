@@ -28,6 +28,7 @@ public class Plumber {
         TemperatureFilter temperature = new TemperatureFilter();
         AttitudeFilter attitude = new AttitudeFilter();
         SinkFilter sink = new SinkFilter();
+        FrameFilter frameFilter = new FrameFilter();
 
         /****************************************************************************
          * Here we connect the filters starting with the sink filter (filter1) which we connect to
@@ -36,13 +37,15 @@ public class Plumber {
 
         sink.connect(attitude); // This esstially says, "connect sink input port to attitude output port
         attitude.connect(temperature); // This esstially says, "connect attitude input port to temperature output port
-        temperature.connect(source); // This esstially says, "connect temperature intput port to source output port
+        temperature.connect(frameFilter); // This esstially says, "connect temperature intput port to source output port
+        frameFilter.connect(source);
 
         /****************************************************************************
          * Here we start the filters up. All-in-all,... its really kind of boring.
          ****************************************************************************/
 
         source.start();
+        frameFilter.start();
         temperature.start();
         attitude.start();
         sink.start();
