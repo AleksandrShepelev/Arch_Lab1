@@ -23,7 +23,9 @@ public class Plumber {
          * Here we instantiate four filters.
          ****************************************************************************/
 
-        SourceFilter source = new SourceFilter();
+        SourceFilter sourceA = new SourceFilter("SubSetA.dat");
+        SourceFilter sourceB = new SourceFilter("SubSetB.dat");
+
         ExtrapolatorFilter extrapolator = new ExtrapolatorFilter();
         TemperatureFilter temperature = new TemperatureFilter();
         AttitudeFilter attitude = new AttitudeFilter();
@@ -33,32 +35,47 @@ public class Plumber {
         AboveFilter aboveFilter = new AboveFilter();
         BelowFilter belowFilter = new BelowFilter();
         SinkAttitudeFilter sinkAttitude = new SinkAttitudeFilter();
+        MergerFilter merger = new MergerFilter();
+
+        //test
+        merger.connect(sourceA);
+        merger.connect(sourceB);
+        sink.connect(merger);
+
+        sourceA.start();
+        sourceB.start();
+        merger.start();
+        sink.start();
+        //end test
 
         /****************************************************************************
          * Here we connect the filters starting with the sink filter (filter1) which we connect to
          * filter2 the middle filter. Then we connect Filter2 to the source filter (filter3).
          ****************************************************************************/
-        sinkWild.connect(extrapolator);
+/*        sinkWild.connect(extrapolator);
         sink.connect(extrapolator); // This esstially says, "connect sink input port to attitude output port
         extrapolator.connect(attitude);
         attitude.connect(temperature); // This esstially says, "connect attitude input port to temperature output port
         temperature.connect(frameFilter); // This esstially says, "connect temperature intput port to source output port
         frameFilter.connect(aboveFilter);
-        belowFilter.connect(source);
-        aboveFilter.connect(source);
+        merger.connect(sourceA);
+        merger.connect(sourceB);
+        belowFilter.connect(merger);
+        aboveFilter.connect(merger);
         sinkAttitude.connect(belowFilter);
-        /****************************************************************************
+        *//****************************************************************************
          * Here we start the filters up. All-in-all,... its really kind of boring.
-         ****************************************************************************/
+         ****************************************************************************//*
         sinkAttitude.start();
         belowFilter.start();
         aboveFilter.start();
         sinkWild.start();
         extrapolator.start();
-        source.start();
+        sourceA.start();
+        sourceB.start();
         frameFilter.start();
         temperature.start();
         attitude.start();
-        sink.start();
+        sink.start();*/
     } // main
 } // Plumber

@@ -13,6 +13,8 @@
  * Then it can resend the frame to the next filter
  ******************************************************************************************************************/
 
+import com.sun.xml.internal.ws.commons.xmlutil.Converter;
+
 import java.util.Map;
 
 public abstract class SystemFilter extends FilterFramework {
