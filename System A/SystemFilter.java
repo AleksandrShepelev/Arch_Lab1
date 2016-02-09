@@ -121,11 +121,21 @@ public abstract class SystemFilter extends FilterFramework {
      * @param portNum
      */
     protected void checkInputPortForClose (int portNum) {
-        if (this.portToClose != null && this.portToClose == portNum) {
+        if (this.endOfStreamInPort(portNum)) {
             System.out.print("\n" + this.getClass().getName() + " closing port " + portNum);
             this.portToClose = null;
             this.closeInputPort(portNum);
         }
+    }
+
+    /**
+     * @TODO Comments
+     *
+     * @param portNum
+     * @return
+     */
+    protected boolean endOfStreamInPort (int portNum) {
+        return this.portToClose != null && this.portToClose == portNum;
     }
 
     /**
