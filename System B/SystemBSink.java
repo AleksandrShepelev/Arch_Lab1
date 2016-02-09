@@ -37,15 +37,21 @@ public class SystemBSink extends SinkFilter {
 
         fileWriter.write("\n");
 
-        for (Integer anOutputColumn : this.getOutputColumns()) {
+        double value;
 
+        for (Integer anOutputColumn : this.getOutputColumns()) {
+            value = 0;
             if ((anOutputColumn == Frame.PRESSURE_ID)
                             && (currentFrame.getData().containsKey(Frame.EXTRAPOLATED_PRESSURE))) {
-                fileWriter.write(String.format("%-24s", convertToOutput(anOutputColumn,
-                        currentFrame.getData().get(Frame.EXTRAPOLATED_PRESSURE)) + "*"));
+                if (currentFrame.getData().containsKey(Frame.EXTRAPOLATED_PRESSURE)) {
+                    value = currentFrame.getData().get(Frame.EXTRAPOLATED_PRESSURE);
+                }
+                fileWriter.write(String.format("%-24s", convertToOutput(anOutputColumn, value) + "*"));
             } else {
-                fileWriter.write(String.format("%-24s", convertToOutput(anOutputColumn,
-                        currentFrame.getData().get(anOutputColumn))));
+                if (currentFrame.getData().containsKey(anOutputColumn)) {
+                    value = currentFrame.getData().get(anOutputColumn);
+                }
+                fileWriter.write(String.format("%-24s", convertToOutput(anOutputColumn, value)));
             }
         }
     }

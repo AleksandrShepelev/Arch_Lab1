@@ -1,4 +1,6 @@
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MergerFilter extends SystemFilter{
 
@@ -9,6 +11,8 @@ public class MergerFilter extends SystemFilter{
 
         Frame currentFrame;
 
+        Map<Integer, Boolean> portsToClose = new HashMap<>();
+
         while (sourcesExist) {
             for (int portNum = 0; portNum < this.getTotalNumberOfInputPorts(); portNum++) {
 
@@ -17,28 +21,35 @@ public class MergerFilter extends SystemFilter{
                 }
 
                 currentFrame = this.readCurrentFrame(portNum);
-                //System.out.println("\nFrame: " + currentFrame.getData());
                 //collecting and sorting all frames into ArrayList
                 Utils.InsertIntoSortedList(mergedSortedFrames, currentFrame, Frame.TIME_ID);
 
-                this.checkInputPortForClose (portNum);
+                if (this.endOfStreamInPort(portNum)) {
+                    portsToClose.put(portNum, true);
+                }
 
-                if (this.getNumberOfOpenedInputPorts() < 1) {
-
-                    System.out.print("\n" + this.getClass().getName() + "::Exiting; bytes read: " +
-                            bytesRead + " bytes written: " + bytesWritten);
-
-                    sourcesExist = false;
-                    break;
+                sourcesExist = false;
+                for (int j = 0; j < this.getTotalNumberOfInputPorts(); j++) {
+                    if (!portsToClose.containsKey(j)) {
+                        sourcesExist = true;
+                        break;
+                    }
                 }
             }
         }
 
         //sending sorted and merged frames to next filter
-        for(Frame item : mergedSortedFrames){
-            transmitCurrentFrame(item);
+        mergedSortedFrames.forEach(this::transmitCurrentFrame);
+
+        mergedSortedFrames.clear();
+
+        // close all ports
+        for (Map.Entry<Integer, Boolean> entry : portsToClose.entrySet()) {
+            this.closeInputPort(entry.getKey());
         }
 
+        System.out.print("\n" + this.getClass().getName() + "::Exiting; bytes read: " +
+                bytesRead + " bytes written: " + bytesWritten);
 
     }
 }

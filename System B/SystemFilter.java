@@ -13,6 +13,7 @@
  * Then it can resend the frame to the next filter
  ******************************************************************************************************************/
 
+import java.util.HashMap;
 import java.util.Map;
 
 public abstract class SystemFilter extends FilterFramework {
@@ -22,6 +23,8 @@ public abstract class SystemFilter extends FilterFramework {
 
     protected int bytesRead = 0; // Number of bytes read from the input file.
     protected int bytesWritten = 0; // Number of bytes written to the stream.
+
+    private Map<Integer, Frame> nextFrames = new HashMap<>();
 
     private Frame nextFrame = null; // Next frame container...we need it when we stop reading to the first and return the data
 
@@ -75,10 +78,15 @@ public abstract class SystemFilter extends FilterFramework {
 
         Frame currentFrame = new Frame();
 
+        Frame nextFrame;
+        if (!nextFrames.containsKey(portNumber)) {
+            nextFrames.put(portNumber, null);
+        }
+
+        nextFrame = nextFrames.get(portNumber);
+
         if (nextFrame != null) {
-            for (Map.Entry<Integer, Double> entry : nextFrame.getData().entrySet()) {
-                currentFrame.getData().put(entry.getKey(), entry.getValue());
-            }
+            currentFrame = Frame.copyFrom(nextFrame);
         }
 
         while (true) {
@@ -99,6 +107,7 @@ public abstract class SystemFilter extends FilterFramework {
                         return currentFrame;
                     } else {
                         nextFrame = new Frame();
+                        nextFrames.put (portNumber, nextFrame);
                     }
                 }
 
