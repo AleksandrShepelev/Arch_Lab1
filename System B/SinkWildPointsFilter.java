@@ -1,5 +1,5 @@
 /******************************************************************************************************************
- * File: SystemBSink.java
+ * File: SinkWildPointsFilter.java
  * Course: Software Architecture
  * Project: Assignment 1
  * Copyright: SKB Kontur Team (MSIT SE)

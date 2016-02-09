@@ -3,4 +3,7 @@
 out/*
 OutputA.dat
 OutputB.dat
+OutputC.dat
 WildPoints.dat
+LessThan10K.dat
+PressureWildPoints.dat
