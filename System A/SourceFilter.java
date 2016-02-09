@@ -20,9 +20,17 @@ import java.io.*; // note we must add this here since we use BufferedReader clas
                   // keyboard
 
 public class SourceFilter extends FilterFramework {
+    private String fileName = "FlightData.dat";
+
+    public SourceFilter(){
+
+    }
+
+    public SourceFilter(String fileName){
+            this.fileName = fileName;
+    }
 
     public void run() {
-        String fileName = "FlightData.dat"; // Input data file.
         int bytesRead = 0; // Number of bytes read from the input file.
         int bytesWritten = 0; // Number of bytes written to the stream.
         DataInputStream in = null; // File stream reference.

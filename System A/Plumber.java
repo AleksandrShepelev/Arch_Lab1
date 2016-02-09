@@ -30,10 +30,15 @@ public class Plumber {
         SinkFilter sink = new SinkFilter();
         FrameFilter frameFilter = new FrameFilter();
 
+        SourceFilter sourceA = new SourceFilter("SubSetA.dat");
+        SourceFilter sourceB = new SourceFilter("SubSetB.dat");
+        MergerFilter merger =new MergerFilter();
+
         /****************************************************************************
          * Here we connect the filters starting with the sink filter (filter1) which we connect to
          * filter2 the middle filter. Then we connect Filter2 to the source filter (filter3).
          ****************************************************************************/
+        //System A test
 
         sink.connect(attitude); // This esstially says, "connect sink input port to attitude output port
         attitude.connect(temperature); // This esstially says, "connect attitude input port to temperature output port
