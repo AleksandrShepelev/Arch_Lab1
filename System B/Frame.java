@@ -34,6 +34,22 @@ public class Frame {
     }
 
     /**
+     * This method clones the frame content
+     *
+     * @param sourceFrame Frame to be copied
+     * @return Frame copy of the frame
+     */
+    public static Frame copyFrom (Frame sourceFrame) {
+        Frame copiedFrame = new Frame();
+
+        for (Map.Entry<Integer, Double> entry : sourceFrame.getData().entrySet()) {
+            copiedFrame.getData().put(entry.getKey(), entry.getValue());
+        }
+
+        return copiedFrame;
+    }
+
+    /**
      *
      * @return Map Key-Value storage with data by its ID
      */

@@ -1,3 +1,8 @@
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /******************************************************************************************************************
  * File: FilterTemplate.java
  * Course: Software Architecture
@@ -17,12 +22,14 @@ public class ExtrapolatorFilter extends SystemFilter {
         boolean sourcesExist = true;
         Frame currentFrame;
 
+        Frame lastValidFrame = null;
+        Frame previousFrame = null;
+        List<Frame> invalidFrames = new ArrayList<>();
+        List<Frame> validFrames = new ArrayList<>();
+
+        Map<Integer, Boolean> portsToClose = new HashMap<>();
+
         while (sourcesExist) {
-            /*************************************************************
-             * Here we read the data byte by byte and buffer them
-             * inside the Frame structure
-             *
-             **************************************************************/
 
             for (int portNum = 0; portNum < this.getTotalNumberOfInputPorts(); portNum++) {
 
@@ -33,32 +40,92 @@ public class ExtrapolatorFilter extends SystemFilter {
                 // this is the frame read from input port
                 currentFrame = this.readCurrentFrame(portNum);
 
-                /*just a dummy code*/
-                if (currentFrame.getData().get(Frame.PRESSURE_ID)<0)
-                    currentFrame.getData().put(Frame.EXTRAPOLATED_PRESSURE, -(currentFrame.getData().get(Frame.PRESSURE_ID)));
+                //check frame
+                if (currentFrame.getData().get(Frame.PRESSURE_ID) < 0) {
+                    invalidFrames.add(Frame.copyFrom(currentFrame));
+                } else {
+                    if (lastValidFrame == null) { // DONE !
+                        lastValidFrame = Frame.copyFrom(currentFrame);
 
+                        // to preserve the order we should put to the valid list all previously invalid
+                        for (Frame frame : invalidFrames) {
+                            frame.getData().put(Frame.EXTRAPOLATED_PRESSURE, lastValidFrame.getData().get(Frame.PRESSURE_ID));
+                            validFrames.add(frame);
+                        }
 
-                // we ALWAYS should transmit frame before closing port, because if it is the last port
-                // it will also close the output port and it can hurt...
-                // so if you need to process a lot of data here you'd better collect it (for instance many frames)
-                // then process and only after all data is processed transmit frames one by one
-                // and don't forget to take the towell and check for ports to close
-                this.transmitCurrentFrame(currentFrame);
+                        // clear the list
+                        invalidFrames.clear();
 
-                // actually this closes the port
-                this.checkInputPortForClose(portNum);
+                        validFrames.add(Frame.copyFrom(currentFrame));
 
-                // checks if we're done here
-                if (this.getNumberOfOpenedInputPorts() < 1) {
+                    } else {
+                        double currentValue = currentFrame.getData().get(Frame.PRESSURE_ID);
+                        double previousValue = previousFrame.getData().get(Frame.PRESSURE_ID);
+                        if (Math.abs(previousValue - currentValue) > 10) {
+                            invalidFrames.add(Frame.copyFrom(currentFrame));
+                        } else {
+                            double lastValidValue = lastValidFrame.getData().get(Frame.PRESSURE_ID);
+                            double delta = Math.abs(currentValue - lastValidValue) / (invalidFrames.size() + 1);
 
-                    System.out.print("\n" + this.getClass().getName() + "::Exiting; bytes read: " +
-                            bytesRead + " bytes written: " + bytesWritten);
+                            for (int i = 0; i < invalidFrames.size(); i++) {
+                                Frame frame = invalidFrames.get(i);
+                                frame.getData().put(Frame.EXTRAPOLATED_PRESSURE, lastValidFrame.getData().get(Frame.PRESSURE_ID) + delta * (i+1));
+                                validFrames.add(frame);
+                            }
 
-                    sourcesExist = false;
-                    break;
+                            // clear the list
+                            invalidFrames.clear();
+
+                            lastValidFrame = Frame.copyFrom(currentFrame);
+
+                            validFrames.add(Frame.copyFrom(currentFrame));
+                        }
+                    }
                 }
-            }
 
+                previousFrame = Frame.copyFrom(currentFrame);
+
+                if (this.endOfStreamInPort(portNum)) {
+                    portsToClose.put(portNum, true);
+                }
+
+                sourcesExist = false;
+                for (int j = 0; j < this.getTotalNumberOfInputPorts(); j++) {
+                    if (!portsToClose.containsKey(j)) {
+                        sourcesExist = true;
+                        break;
+                    }
+                }
+
+            } // for
         } // while
+
+        //check for invalids
+        double lastCorrectValue = 0;
+        if (lastValidFrame != null) {
+            lastCorrectValue = lastValidFrame.getData().get(Frame.PRESSURE_ID);
+        }
+
+        // to preserve the order we should put to the valid list all previously invalid
+        for (Frame frame : invalidFrames) {
+            frame.getData().put(Frame.EXTRAPOLATED_PRESSURE, lastCorrectValue);
+            validFrames.add(frame);
+        }
+
+        // clear the list
+        invalidFrames.clear();
+
+        validFrames.forEach(this::transmitCurrentFrame);
+
+        validFrames.clear();
+
+        // close all ports
+        for (Map.Entry<Integer, Boolean> entry : portsToClose.entrySet()) {
+            this.closeInputPort(entry.getKey());
+        }
+
+        System.out.print("\n" + this.getClass().getName() + "::Exiting; bytes read: " +
+                bytesRead + " bytes written: " + bytesWritten);
+
     } // run
 }
