@@ -25,8 +25,9 @@ public abstract class SystemFilter extends FilterFramework {
     protected int bytesRead = 0; // Number of bytes read from the input file.
     protected int bytesWritten = 0; // Number of bytes written to the stream.
 
-    protected Frame currentFrame = null; // current frame data
     private Frame nextFrame = null; // Next frame container...we need it when we stop reading to the first and return the data
+
+    protected Integer portToClose = null; // contains the port that should be closed now
 
     /**
      *  This method takes as an argument the frame to be transmitted and sends it byte-by-byte starting
@@ -69,14 +70,13 @@ public abstract class SystemFilter extends FilterFramework {
      * This helps to work with the frame any way we need and want and then resend the data further
      *
      * @return Frame The frame that is built according to the received data
-     * @throws EndOfStreamException
      */
-    protected Frame readCurrentFrame (int portNumber) throws EndOfStreamException {
+    protected Frame readCurrentFrame (int portNumber) {
         int currentId; //Current measurement data id (also for time)
 
         long measurement; // This is the word used to store all measurements - conversions are illustrated.
 
-        currentFrame = new Frame();
+        Frame currentFrame = new Frame();
 
         if (nextFrame != null) {
             for (Map.Entry<Integer, Double> entry : nextFrame.getData().entrySet()) {
@@ -86,26 +86,46 @@ public abstract class SystemFilter extends FilterFramework {
 
         while (true) {
 
-            // read ID first
-            currentId = this.getPacketId(portNumber);
+            try {
 
-            // read the measurement data
-            measurement = this.getPacketData(portNumber);
+                // read ID first
+                currentId = this.getPacketId(portNumber);
 
-            //
-            if (currentId == Frame.TIME_ID) {
-                if (nextFrame != null) {
-                    // pack data
-                    nextFrame.getData().put(currentId, Double.longBitsToDouble(measurement));
-                    return currentFrame;
-                } else {
-                    nextFrame = new Frame();
+                // read the measurement data
+                measurement = this.getPacketData(portNumber);
+
+                //
+                if (currentId == Frame.TIME_ID) {
+                    if (nextFrame != null) {
+                        // pack data
+                        nextFrame.getData().put(currentId, Double.longBitsToDouble(measurement));
+                        return currentFrame;
+                    } else {
+                        nextFrame = new Frame();
+                    }
                 }
-            }
 
-            currentFrame.getData().put(currentId, Double.longBitsToDouble(measurement));
+                currentFrame.getData().put(currentId, Double.longBitsToDouble(measurement));
+
+            } catch (EndOfStreamException e) {
+                //fire event for closing port outside!
+                this.portToClose = portNumber;
+
+                return currentFrame;
+            } // try-catch
         }
+    }
 
+    /**
+     * @TODO Comments
+     * @param portNum
+     */
+    protected void checkInputPortForClose (int portNum) {
+        if (this.portToClose != null && this.portToClose == portNum) {
+            System.out.print("\n" + this.getClass().getName() + " closing port " + portNum);
+            this.portToClose = null;
+            this.closeInputPort(portNum);
+        }
     }
 
     /**
