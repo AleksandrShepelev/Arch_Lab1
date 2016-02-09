@@ -1,18 +1,14 @@
-import java.util.Map;
-
 /******************************************************************************************************************
  * File: AttitudeFilter.java
  * Course: Software Architecture
  * Project: Assignment 1
  * Copyright: SKB Kontur Team (MSIT SE)
  * Date: 06.02.16
- *
+ * <p>
  * Description:
- *
+ * <p>
  * This class represents the filter responsible for converting temperature from feet to meters
  * by means of implementing parent method convertData
- *
- *
  ******************************************************************************************************************/
 
 public class AttitudeFilter extends DataConverter {

@@ -26,11 +26,11 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.text.DecimalFormat;
-import java.util.*; // This class is used to interpret time words
-import java.text.SimpleDateFormat; // This class is used to format and write time in a string
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 // format.
 
-public class SinkFilter extends SystemFilter {
+public class SinkWildPointsFilter extends SystemFilter {
 
     private String convertToOutput(int id, double measurement) {
         Calendar timeStamp = Calendar.getInstance();
@@ -82,9 +82,9 @@ public class SinkFilter extends SystemFilter {
     }
 
     public void run() {
-        String fileName = "OutputB.dat"; // Input data file.
+        String fileName = "WildPoints.dat"; // Input data file.
         /* here should be put ID's of data that should be output */
-        int[] outputColumn = {Frame.TIME_ID, Frame.TEMPERATURE_ID, Frame.ATTITUDE_ID, Frame.PRESSURE_ID};
+        int[] outputColumn = {Frame.TIME_ID, Frame.PRESSURE_ID};
         /************************************************************************************
          * timeStamp is used to compute time using java.util's Calendar class. timeStampFormat is
          * used to format the time value so that it can be easily printed to the terminal.
@@ -128,18 +128,12 @@ public class SinkFilter extends SystemFilter {
                 }
 
                 currentFrame = this.readCurrentFrame(portNum);
-
-                fileWriter.write("\n");
-                for (Integer anOutputColumn : outputColumn) {
-
-                    if ((anOutputColumn == Frame.PRESSURE_ID) && (currentFrame.getData().containsKey(Frame.EXTRAPOLATED_PRESSURE))) {
-                        fileWriter.write(String.format("%-24s", convertToOutput(anOutputColumn,
-                                currentFrame.getData().get(Frame.EXTRAPOLATED_PRESSURE)) + "*"));
-                    } else
+                if (currentFrame.getData().containsKey(Frame.EXTRAPOLATED_PRESSURE)) {
+                    fileWriter.write("\n");
+                    for (Integer anOutputColumn : outputColumn)
                         fileWriter.write(String.format("%-24s", convertToOutput(anOutputColumn,
                                 currentFrame.getData().get(anOutputColumn))));
                 }
-
                 this.checkInputPortForClose(portNum);
 
                 if (this.getNumberOfOpenedInputPorts() < 1) {

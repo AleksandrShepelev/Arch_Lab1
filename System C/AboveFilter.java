@@ -1,35 +1,28 @@
 /******************************************************************************************************************
- * File: DataConverter.java
+ * File: FilterTemplate.java
  * Course: Software Architecture
  * Project: Assignment 1
  * Copyright: SKB Kontur Team (MSIT SE)
- * Date: 06.02.16
- * <p>
+ * Date: 08.02.16
+ *
  * Description:
- * <p>
- * This class represents the abstract filter responsible for converting any data from one unit to another
- * The binary data comes to the input as a sequence of bytes one-by-one
- * The output data is sent as a sequence of bytes one-by-one
- * <p>
- * To process specific units children classes should implement the method convertData
+ *
+ * This is filter for unnecessary data
+ *
+ *
  ******************************************************************************************************************/
 
-public abstract class DataConverter extends SystemFilter {
+public class AboveFilter extends SystemFilter {
 
     public void run() {
-
+        final int level = 10000;
         boolean sourcesExist = true;
-
         Frame currentFrame;
 
         while (sourcesExist) {
             /*************************************************************
              * Here we read the data byte by byte and buffer them
              * inside the Frame structure
-             * And then convert the data applying necessary data converter
-             *
-             * We read from all input ports we have until all input pipes are closed
-             * only after that we also close other ports and break the while loop
              *
              **************************************************************/
 
@@ -39,16 +32,28 @@ public abstract class DataConverter extends SystemFilter {
                     continue;
                 }
 
+                // this is the frame read from input port
                 currentFrame = this.readCurrentFrame(portNum);
 
-                if (currentFrame.getData().containsKey(this.getMeasurementId())) {
-                    this.convertData(currentFrame);
-                }
+                /**
+                 * YOUR CODE GOES HERE
+                 */
 
-                this.transmitCurrentFrame(currentFrame);
+                // some code
+                // another code
 
-                this.checkInputPortForClose(portNum);
+                // we ALWAYS should transmit frame before closing port, because if it is the last port
+                // it will also close the output port and it can hurt...
+                // so if you need to process a lot of data here you'd better collect it (for instance many frames)
+                // then process and only after all data is processed transmit frames one by one
+                // and don't forget to take the towell and check for ports to close
+                if (currentFrame.getData().get(Frame.ATTITUDE_ID)>=level)
+                this.transmitCurrentFrame (currentFrame);
 
+                // actually this closes the port
+                this.checkInputPortForClose (portNum);
+
+                // checks if we're done here
                 if (this.getNumberOfOpenedInputPorts() < 1) {
 
                     System.out.print("\n" + this.getClass().getName() + "::Exiting; bytes read: " +
@@ -61,18 +66,4 @@ public abstract class DataConverter extends SystemFilter {
 
         } // while
     } // run
-
-    /**
-     * Converts data from one unit to another
-     *
-     * @param frameToProcess Frame input frame to process
-     */
-    protected abstract void convertData(Frame frameToProcess);
-
-    /**
-     * Returns ID for the measurement data to be converted
-     *
-     * @return int the ID for the measurement
-     */
-    protected abstract int getMeasurementId();
 }

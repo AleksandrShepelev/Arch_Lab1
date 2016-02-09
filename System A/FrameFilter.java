@@ -4,17 +4,15 @@
  * Project: Assignment 1
  * Copyright: SKB Kontur Team (MSIT SE)
  * Date: 06.02.16
- *
+ * <p>
  * Description:
- *
+ * <p>
  * This is filter for unnecessary data
- *
- *
  ******************************************************************************************************************/
 
 public class FrameFilter extends SystemFilter {
 
-    private int[] filterElements = new int[] {Frame.BANK_ID, Frame.EXTRAPOLATED_PRESSURE, Frame.VELOCITY_ID, Frame.PRESSURE_ID};
+    private int[] filterElements = new int[]{Frame.BANK_ID, Frame.EXTRAPOLATED_PRESSURE, Frame.VELOCITY_ID, Frame.PRESSURE_ID};
 
     public void run() {
 
@@ -42,9 +40,9 @@ public class FrameFilter extends SystemFilter {
                     }
                 }
 
-                this.transmitCurrentFrame (currentFrame);
+                this.transmitCurrentFrame(currentFrame);
 
-                this.checkInputPortForClose (portNum);
+                this.checkInputPortForClose(portNum);
 
                 if (this.getNumberOfOpenedInputPorts() < 1) {
 

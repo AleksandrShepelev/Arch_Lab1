@@ -4,14 +4,14 @@
  * Project: Assignment 1
  * Copyright: Copyright (c) 2003 Carnegie Mellon University
  * Versions: 1.0 November 2008 - Initial rewrite of original assignment 1 (ajl).
- *
+ * <p>
  * Description:
  * This superclass defines a skeletal filter framework that defines a filter in terms of the input
  * and output ports. All filters must be defined in terms of this framework - that is, filters must
  * extend this class in order to be considered valid system filters. Filters as standalone threads
  * until the input port no longer has any data - at which point the filter finishes up any work it
  * has to do and then terminates.
- *
+ * <p>
  * Parameters:
  * inputReadPort: This is the filter's input port. Essentially this port is connected to another
  * filter's piped output steam. All filters connect to other filters by connecting their input ports
@@ -22,13 +22,12 @@
  * inputFilter: This is a reference to the filter that is connected to the instance filter's
  * input port. This reference is to determine when the upstream filter has stopped sending data
  * along the pipe.
- *
+ * <p>
  * Internal Methods:
  * public void connect(FilterFramework filter)
  * public byte readFilterInputPort()
  * public void writeFilterOutputPort(byte datum)
  * public boolean endOfInputStream()
- *
  ******************************************************************************************************************/
 
 import java.io.*;
@@ -49,7 +48,7 @@ public class FilterFramework extends Thread {
 
     /***************************************************************************
      * InnerClass:: EndOfStreamExeception
-     * 
+     *
      * Purpose: This
      *
      * Arguments: none
@@ -110,7 +109,7 @@ public class FilterFramework extends Thread {
 
     /***************************************************************************
      * CONCRETE METHOD:: readFilterInputPort
-     * 
+     *
      * Purpose: This method reads data from the input port one byte at a time.
      *
      * Arguments: void
@@ -168,7 +167,7 @@ public class FilterFramework extends Thread {
 
     /***************************************************************************
      * CONCRETE METHOD:: writeFilterOutputPort
-     * 
+     *
      * Purpose: This method writes data to the output port one byte at a time.
      *
      * Arguments: byte datum - This is the byte that will be written on the output port
@@ -196,20 +195,20 @@ public class FilterFramework extends Thread {
      * @TODO COMMENTS
      * @param datum
      */
-    void writeFilterOutputPortsAll (byte datum) {
+    void writeFilterOutputPortsAll(byte datum) {
         for (int i = 0; i < this.outputWritePorts.size(); i++) {
             this.writeFilterOutputPort(i, datum);
         }
     }
 
 
-    boolean inputPortIsAlive (int portNum) {
+    boolean inputPortIsAlive(int portNum) {
         return this.inputReadPorts.get(portNum) != null;
     }
 
     /***************************************************************************
      * CONCRETE METHOD:: endOfInputStream
-     * 
+     *
      * Purpose: This method is used within this framework which
      * is why it is private It returns a true when there is no more data to read on the input port
      * of the instance filter. What it really does is to check if the upstream filter is still
@@ -242,7 +241,7 @@ public class FilterFramework extends Thread {
 
     /***************************************************************************
      * CONCRETE METHOD:: closePorts
-     * 
+     *
      * Purpose: This method is used to close the input and output ports of the filter.
      * It is important that filters close their ports before the filter thread exits.
      *
@@ -293,7 +292,7 @@ public class FilterFramework extends Thread {
 
     /***************************************************************************
      * CONCRETE METHOD:: run
-     * 
+     *
      * Purpose: This is actually an abstract method defined by Thread. It is
      * called when the thread is started by calling the Thread.start() method. In this case, the
      * run() method should be overridden by the filter programmer using this framework superclass

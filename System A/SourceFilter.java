@@ -4,30 +4,29 @@
  * Project: Assignment 1
  * Copyright: Copyright (c) 2003 Carnegie Mellon University
  * Versions: 1.0 November 2008 - Sample Pipe and Filter code (ajl).
- *
+ * <p>
  * Description:
  * This class serves as an example for how to use the SourceFilterTemplate to create a source
  * filter. This particular filter is a source filter that reads some input from the FlightData.dat
  * file and writes the bytes up stream.
- *
+ * <p>
  * Parameters: None
- *
+ * <p>
  * Internal Methods: None
- *
  ******************************************************************************************************************/
 
 import java.io.*; // note we must add this here since we use BufferedReader class to read from the
-                  // keyboard
+// keyboard
 
 public class SourceFilter extends FilterFramework {
     private String fileName = "FlightData.dat";
 
-    public SourceFilter(){
+    public SourceFilter() {
 
     }
 
-    public SourceFilter(String fileName){
-            this.fileName = fileName;
+    public SourceFilter(String fileName) {
+        this.fileName = fileName;
     }
 
     public void run() {
@@ -74,7 +73,7 @@ public class SourceFilter extends FilterFramework {
                 /***********************************************************************************
                  * The following exception is raised should we have a problem closing the file.
                  ***********************************************************************************/
-            
+
                 System.out.println(
                         "\n" + this.getName() + "::Problem closing input data file::" + closeerr);
             } // try-catch
