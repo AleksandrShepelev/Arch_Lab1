@@ -126,7 +126,7 @@ public class SinkFilter extends SystemFilter {
 
                 try {
                     this.currentFrame = this.readCurrentFrame(portNum);
-
+                    System.out.println("\nframe: " + currentFrame.getData());
                     fileWriter.write("\n");
                     for (Integer anOutputColumn : outputColumn) {
                         fileWriter.write(String.format("%-24s", convertToOutput(anOutputColumn, this.currentFrame.getData().get(anOutputColumn))));
