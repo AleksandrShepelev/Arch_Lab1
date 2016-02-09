@@ -32,7 +32,7 @@ public class Plumber {
 
         SourceFilter sourceA = new SourceFilter("SubSetA.dat");
         SourceFilter sourceB = new SourceFilter("SubSetB.dat");
-        MergerFilter merger =new MergerFilter();
+        MergerFilter merger = new MergerFilter();
 
         /****************************************************************************
          * Here we connect the filters starting with the sink filter (filter1) which we connect to
@@ -40,19 +40,34 @@ public class Plumber {
          ****************************************************************************/
         //System A test
 
+        /*
         sink.connect(attitude); // This esstially says, "connect sink input port to attitude output port
         attitude.connect(temperature); // This esstially says, "connect attitude input port to temperature output port
         temperature.connect(frameFilter); // This esstially says, "connect temperature intput port to source output port
         frameFilter.connect(source);
+        */
+
+        //System C test
+        merger.connect(sourceA);
+        merger.connect(sourceB);
+        sink.connect(merger);
 
         /****************************************************************************
          * Here we start the filters up. All-in-all,... its really kind of boring.
          ****************************************************************************/
-
+        //System A start
+        /*
         source.start();
         frameFilter.start();
         temperature.start();
         attitude.start();
+        sink.start();
+        */
+
+        //System C start
+        sourceA.start();
+        sourceB.start();
+        merger.start();
         sink.start();
     } // main
 } // Plumber
