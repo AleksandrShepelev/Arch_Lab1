@@ -26,7 +26,7 @@ public class BelowFilter extends SystemFilter {
              *
              **************************************************************/
 
-            for (int portNum = 0; portNum < this.getNumberOfOpenedInputPorts(); portNum++) {
+            for (int portNum = 0; portNum < this.getTotalNumberOfInputPorts(); portNum++) {
 
                 if (!this.inputPortIsAlive(portNum)) {
                     continue;

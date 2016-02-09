@@ -27,7 +27,7 @@ public class Plumber {
         ExtrapolatorFilter extrapolator = new ExtrapolatorFilter();
         TemperatureFilter temperature = new TemperatureFilter();
         AttitudeFilter attitude = new AttitudeFilter();
-        SinkFilter sink = new SinkFilter();
+        SystemBSink sinkB = new SystemBSink();
         SinkWildPointsFilter sinkWild = new SinkWildPointsFilter();
         FrameFilter frameFilter = new FrameFilter();
 
@@ -37,7 +37,7 @@ public class Plumber {
          * filter2 the middle filter. Then we connect Filter2 to the source filter (filter3).
          ****************************************************************************/
         sinkWild.connect(extrapolator);
-        sink.connect(extrapolator); // This esstially says, "connect sink input port to attitude output port
+        sinkB.connect(extrapolator); // This esstially says, "connect sink input port to attitude output port
         extrapolator.connect(attitude);
         attitude.connect(temperature); // This esstially says, "connect attitude input port to temperature output port
         temperature.connect(frameFilter); // This esstially says, "connect temperature intput port to source output port
@@ -52,6 +52,6 @@ public class Plumber {
         frameFilter.start();
         temperature.start();
         attitude.start();
-        sink.start();
+        sinkB.start();
     } // main
 } // Plumber

@@ -1,38 +1,35 @@
 /******************************************************************************************************************
  * File: SinkFilter.java
- * Course: MSIT-SE-M-04
+ * Course: Software Architecture
  * Project: Assignment 1
- * Copyright: Copyright (c) 2003 Carnegie Mellon University
- * Versions: 1.0 November 2008 - Sample Pipe and Filter code (ajl).
+ * Copyright: SKB Kontur Team (MSIT SE)
+ * Date: 09.02.16
  * <p>
  * Description:
  * <p>
- * This class serves as an example for using the SinkFilterTemplate for creating a sink filter. This
- * particular filter reads some input from the filter's input port and does the following:
- * <p>
- * 1) It parses the input stream and "decommutates" the measurement ID 2) It parses the input steam
- * for measurements and "decommutates" measurements, storing the bits in a long word.
- * <p>
- * This filter illustrates how to convert the byte stream data from the upstream filter into usable
- * data found in the stream: namely time (long type) and measurements (double type).
- * <p>
- * <p>
- * Parameters: None
- * <p>
- * Internal Methods: None
+ *
+ * This is a parent class for any sinks to be used in the system
+ * It is responsible for final data representation
+ *
  ******************************************************************************************************************/
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.text.DecimalFormat;
-import java.util.*; // This class is used to interpret time words
-import java.text.SimpleDateFormat; // This class is used to format and write time in a string
-// format.
+import java.util.*;
+import java.text.SimpleDateFormat;
 
-public class SinkFilter extends SystemFilter {
+abstract public class SinkFilter extends SystemFilter {
 
-    private String convertToOutput(int id, double measurement) {
+    /**
+     * This methods formats the final representation of the measurements according to the data type (by ID)
+     *
+     * @param id int packet ID inside the Frame
+     * @param measurement double data value inside the packet
+     * @return String data representation depending on data type
+     */
+    protected String convertToOutput(int id, double measurement) {
         Calendar timeStamp = Calendar.getInstance();
         SimpleDateFormat timeStampOutputFormat = new SimpleDateFormat("yyyy:MM:dd:hh:mm:ss");
         DecimalFormat attitudeFormat = new DecimalFormat("000000.00000");
@@ -40,6 +37,7 @@ public class SinkFilter extends SystemFilter {
         DecimalFormat pressureFormat = new DecimalFormat("00.00000");
         DecimalFormat velocityFormat = new DecimalFormat("000000.00000");
         DecimalFormat bankFormat = new DecimalFormat("000000.00000");
+
         if (id == Frame.TIME_ID) {
             timeStamp.setTimeInMillis(Double.doubleToLongBits(measurement));
         }
@@ -62,16 +60,22 @@ public class SinkFilter extends SystemFilter {
         }
     }
 
+    /**
+     * This method returns the header name for each packet inside the frame
+     *
+     * @param id int the ID of the packet inside the frame
+     * @return String header name
+     */
     protected String getHeader(int id) {
         switch (id) {
             case Frame.TIME_ID:
                 return "Time:";
             case Frame.VELOCITY_ID:
-                return "Velosity(sec):";
+                return "Velocity (sec):";
             case Frame.ATTITUDE_ID:
                 return "Attitude(m):";
             case Frame.PRESSURE_ID:
-                return "Pressure(psi):";
+                return "Pressure (PSI):";
             case Frame.TEMPERATURE_ID:
                 return "Temperature(C):";
             case Frame.BANK_ID:
@@ -81,20 +85,36 @@ public class SinkFilter extends SystemFilter {
         }
     }
 
+    /**
+     * Returns file name to output the final stream
+     *
+     * @return String file name to write the output
+     */
+    protected abstract String getFileName();
+
+    /**
+     * @return Default file encoding
+     */
+    protected String getFileEncoding() {
+        return "UTF-8";
+    }
+
+    protected abstract int[] getOutputColumns();
+
+    protected abstract void writeFileData (PrintWriter fileWriter, Frame currentFrame);
+
     public void run() {
-        String fileName = "OutputA.dat"; // Input data file.
+        String fileName = this.getFileName(); // Input data file.
+
         /* here should be put ID's of data that should be output */
-        int[] outputColumn = {Frame.TIME_ID, Frame.TEMPERATURE_ID, Frame.ATTITUDE_ID};
+        int[] outputColumn = this.getOutputColumns();
+
         /************************************************************************************
          * timeStamp is used to compute time using java.util's Calendar class. timeStampFormat is
          * used to format the time value so that it can be easily printed to the terminal.
          *************************************************************************************/
-        String encoding = "UTF-8";
+        String encoding = this.getFileEncoding();
         PrintWriter fileWriter;
-        Calendar timeStamp = Calendar.getInstance();
-        SimpleDateFormat timeStampFormat = new SimpleDateFormat("yyyy MM dd::hh:mm:ss:SSS");
-
-
 
         /*here we initialize file reader. If something goes wrong we'll get exception here*/
         try {
@@ -121,7 +141,7 @@ public class SinkFilter extends SystemFilter {
         Frame currentFrame;
 
         while (sourcesExist) {
-            for (int portNum = 0; portNum < this.getNumberOfOpenedInputPorts(); portNum++) {
+            for (int portNum = 0; portNum < this.getTotalNumberOfInputPorts(); portNum++) {
 
                 if (!this.inputPortIsAlive(portNum)) {
                     continue;
@@ -129,11 +149,7 @@ public class SinkFilter extends SystemFilter {
 
                 currentFrame = this.readCurrentFrame(portNum);
 
-                fileWriter.write("\n");
-                for (Integer anOutputColumn : outputColumn) {
-                    fileWriter.write(String.format("%-24s",
-                            convertToOutput(anOutputColumn, currentFrame.getData().get(anOutputColumn))));
-                }
+                this.writeFileData(fileWriter, currentFrame);
 
                 this.checkInputPortForClose(portNum);
 
@@ -143,8 +159,8 @@ public class SinkFilter extends SystemFilter {
                     sourcesExist = false;
                     break;
                 }
-
             }
         } // while
     } // run
-} //  SinkFilter
+
+}
