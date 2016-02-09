@@ -35,7 +35,7 @@ public class MergerFilter extends SystemFilter{
         }
 
         //sending sorted and merged frames to next filter
-        System.out.println("size: " + mergedSortedFrames);
+        //System.out.println("size: " + mergedSortedFrames);
         for(Frame item : mergedSortedFrames){
             System.out.println("\nFrame: " + item.getData());
         }
