@@ -1,5 +1,5 @@
 /******************************************************************************************************************
- * File: DataConverter.java
+ * File: FilterTemplate.java
  * Course: Software Architecture
  * Project: Assignment 1
  * Copyright: SKB Kontur Team (MSIT SE)
@@ -7,24 +7,26 @@
  *
  * Description:
  *
- * This class represents the filter responsible for converting extrapolating data of any type
- * The binary data comes to the input as a sequence of bytes one-by-one
- * The output data is sent as a sequence of bytes one-by-one
- *
- * To extrapolate specific units children classes should define the ID from data to be extrapolated
+ * This is filter for unnecessary data
  *
  *
  ******************************************************************************************************************/
 
-public abstract class ExtrapolatorFilter extends SystemFilter {
+public class ExtrapolatorFilter extends SystemFilter {
 
     public void run() {
 
         boolean sourcesExist = true;
+        Frame currentFrame;
+
+        /*dummy counter*/
+        int k=0;
 
         while (sourcesExist) {
             /*************************************************************
-             * EXTRAPOLATION DESCRIPTION
+             * Here we read the data byte by byte and buffer them
+             * inside the Frame structure
+             *
              **************************************************************/
 
             for (int portNum = 0; portNum < this.getNumberOfOpenedInputPorts(); portNum++) {
@@ -33,24 +35,33 @@ public abstract class ExtrapolatorFilter extends SystemFilter {
                     continue;
                 }
 
-                try {
+                // this is the frame read from input port
+                currentFrame = this.readCurrentFrame(portNum);
 
-                    this.readCurrentFrame(portNum);
+                /*just a dummy code*/
+                if (k % 2 == 0)
+                    currentFrame.getData().put(Frame.EXTRAPOLATED_PRESSURE,(currentFrame.getData().get(Frame.PRESSURE_ID)/2));
+                k++;
 
-                    // DO YOUR EXTRAPOLATION HERE !!!
+                // we ALWAYS should transmit frame before closing port, because if it is the last port
+                // it will also close the output port and it can hurt...
+                // so if you need to process a lot of data here you'd better collect it (for instance many frames)
+                // then process and only after all data is processed transmit frames one by one
+                // and don't forget to take the towell and check for ports to close
+                this.transmitCurrentFrame (currentFrame);
 
-                    this.transmitCurrentFrame (this.currentFrame);
+                // actually this closes the port
+                this.checkInputPortForClose (portNum);
 
-                } catch (EndOfStreamException e) {
-                    this.transmitCurrentFrame (this.currentFrame);
-                    closeInputPort(portNum);
-                    System.out.print("\n" + this.getName() + "::Middle Exiting; bytes read: " +
+                // checks if we're done here
+                if (this.getNumberOfOpenedInputPorts() < 1) {
+
+                    System.out.print("\n" + this.getClass().getName() + "::Exiting; bytes read: " +
                             bytesRead + " bytes written: " + bytesWritten);
-                    if (this.getNumberOfOpenedInputPorts() < 1) {
-                        sourcesExist = false;
-                        break;
-                    }
-                } // try-catch
+
+                    sourcesExist = false;
+                    break;
+                }
             }
 
         } // while

@@ -5,7 +5,7 @@ import java.util.Calendar;
 /**
  * Created by Aleksandr on 09.02.2016.
  */
-public class SinkFilter extends BaseSinkFilter {
+public class SinkWildPointsFilter extends BaseSinkFilter {
 
     @Override
     protected String convertToOutput(int id, double measurement) {
@@ -60,12 +60,12 @@ public class SinkFilter extends BaseSinkFilter {
 
     @Override
     protected String getFileName() {
-        return "OutputB.dat";
+        return "WildPoints.dat";
     }
 
     @Override
     protected int[] getOutputColumns() {
-        int[] output = {Frame.TIME_ID, Frame.TEMPERATURE_ID, Frame.ATTITUDE_ID, Frame.PRESSURE_ID};
+        int[] output = {Frame.TIME_ID, Frame.PRESSURE_ID};
         return output;
     }
 }

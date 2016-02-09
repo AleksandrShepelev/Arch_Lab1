@@ -25,24 +25,32 @@ public class Plumber {
          ****************************************************************************/
 
         SourceFilter source = new SourceFilter();
+        ExtrapolatorFilter extapolator = new ExtrapolatorFilter();
         TemperatureFilter temperature = new TemperatureFilter();
         AttitudeFilter attitude = new AttitudeFilter();
         SinkFilter sink = new SinkFilter();
+        SinkWildPointsFilter sinkWild = new SinkWildPointsFilter();
+        FrameFilter frameFilter = new FrameFilter();
+
 
         /****************************************************************************
          * Here we connect the filters starting with the sink filter (filter1) which we connect to
          * filter2 the middle filter. Then we connect Filter2 to the source filter (filter3).
          ****************************************************************************/
-
-        sink.connect(attitude); // This esstially says, "connect sink input port to attitude output port
+        sinkWild.connect(extapolator);
+        sink.connect(extapolator); // This esstially says, "connect sink input port to attitude output port
+        extapolator.connect(attitude);
         attitude.connect(temperature); // This esstially says, "connect attitude input port to temperature output port
-        temperature.connect(source); // This esstially says, "connect temperature intput port to source output port
+        temperature.connect(frameFilter); // This esstially says, "connect temperature intput port to source output port
+        frameFilter.connect(source);
 
         /****************************************************************************
          * Here we start the filters up. All-in-all,... its really kind of boring.
          ****************************************************************************/
-
+        sinkWild.start();
+        extapolator.start();
         source.start();
+        frameFilter.start();
         temperature.start();
         attitude.start();
         sink.start();
