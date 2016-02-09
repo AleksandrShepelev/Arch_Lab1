@@ -17,9 +17,6 @@ public class ExtrapolatorFilter extends SystemFilter {
         boolean sourcesExist = true;
         Frame currentFrame;
 
-        /*dummy counter*/
-        int k = 0;
-
         while (sourcesExist) {
             /*************************************************************
              * Here we read the data byte by byte and buffer them
@@ -37,9 +34,9 @@ public class ExtrapolatorFilter extends SystemFilter {
                 currentFrame = this.readCurrentFrame(portNum);
 
                 /*just a dummy code*/
-                if (k % 2 == 0)
-                    currentFrame.getData().put(Frame.EXTRAPOLATED_PRESSURE, (currentFrame.getData().get(Frame.PRESSURE_ID) / 2));
-                k++;
+                if (currentFrame.getData().get(Frame.PRESSURE_ID)<0)
+                    currentFrame.getData().put(Frame.EXTRAPOLATED_PRESSURE, -(currentFrame.getData().get(Frame.PRESSURE_ID)));
+
 
                 // we ALWAYS should transmit frame before closing port, because if it is the last port
                 // it will also close the output port and it can hurt...

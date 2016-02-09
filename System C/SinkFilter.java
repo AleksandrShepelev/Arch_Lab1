@@ -82,7 +82,7 @@ public class SinkFilter extends SystemFilter {
     }
 
     public void run() {
-        String fileName = "OutputB.dat"; // Input data file.
+        String fileName = "OutputC.dat"; // Input data file.
         /* here should be put ID's of data that should be output */
         int[] outputColumn = {Frame.TIME_ID, Frame.TEMPERATURE_ID, Frame.ATTITUDE_ID, Frame.PRESSURE_ID};
         /************************************************************************************

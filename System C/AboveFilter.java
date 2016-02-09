@@ -4,16 +4,18 @@
  * Project: Assignment 1
  * Copyright: SKB Kontur Team (MSIT SE)
  * Date: 08.02.16
- * <p>
+ *
  * Description:
- * <p>
+ *
  * This is filter for unnecessary data
+ *
+ *
  ******************************************************************************************************************/
 
-public class ExtrapolatorFilter extends SystemFilter {
+public class AboveFilter extends SystemFilter {
 
     public void run() {
-
+        final int level = 10000;
         boolean sourcesExist = true;
         Frame currentFrame;
 
@@ -33,20 +35,23 @@ public class ExtrapolatorFilter extends SystemFilter {
                 // this is the frame read from input port
                 currentFrame = this.readCurrentFrame(portNum);
 
-                /*just a dummy code*/
-                if (currentFrame.getData().get(Frame.PRESSURE_ID)<0)
-                    currentFrame.getData().put(Frame.EXTRAPOLATED_PRESSURE, -(currentFrame.getData().get(Frame.PRESSURE_ID)));
+                /**
+                 * YOUR CODE GOES HERE
+                 */
 
+                // some code
+                // another code
 
                 // we ALWAYS should transmit frame before closing port, because if it is the last port
                 // it will also close the output port and it can hurt...
                 // so if you need to process a lot of data here you'd better collect it (for instance many frames)
                 // then process and only after all data is processed transmit frames one by one
                 // and don't forget to take the towell and check for ports to close
-                this.transmitCurrentFrame(currentFrame);
+                if (currentFrame.getData().get(Frame.ATTITUDE_ID)>=level)
+                this.transmitCurrentFrame (currentFrame);
 
                 // actually this closes the port
-                this.checkInputPortForClose(portNum);
+                this.checkInputPortForClose (portNum);
 
                 // checks if we're done here
                 if (this.getNumberOfOpenedInputPorts() < 1) {

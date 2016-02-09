@@ -26,11 +26,11 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.util.*; // This class is used to interpret time words
+import java.text.SimpleDateFormat; // This class is used to format and write time in a string
 // format.
 
-public class SinkWildPointsFilter extends SystemFilter {
+public class SinkAttitudeFilter extends SystemFilter {
 
     private String convertToOutput(int id, double measurement) {
         Calendar timeStamp = Calendar.getInstance();
@@ -69,7 +69,7 @@ public class SinkWildPointsFilter extends SystemFilter {
             case Frame.VELOCITY_ID:
                 return "Velosity(sec):";
             case Frame.ATTITUDE_ID:
-                return "Attitude(m):";
+                return "Attitude(feet):";
             case Frame.PRESSURE_ID:
                 return "Pressure(psi):";
             case Frame.TEMPERATURE_ID:
@@ -82,9 +82,9 @@ public class SinkWildPointsFilter extends SystemFilter {
     }
 
     public void run() {
-        String fileName = "PressureWildPoints.dat"; // Input data file.
+        String fileName = "LessThan10K.dat"; // Input data file.
         /* here should be put ID's of data that should be output */
-        int[] outputColumn = {Frame.TIME_ID, Frame.PRESSURE_ID};
+        int[] outputColumn = {Frame.TIME_ID, Frame.ATTITUDE_ID};
         /************************************************************************************
          * timeStamp is used to compute time using java.util's Calendar class. timeStampFormat is
          * used to format the time value so that it can be easily printed to the terminal.
@@ -128,12 +128,13 @@ public class SinkWildPointsFilter extends SystemFilter {
                 }
 
                 currentFrame = this.readCurrentFrame(portNum);
-                if (currentFrame.getData().containsKey(Frame.EXTRAPOLATED_PRESSURE)) {
-                    fileWriter.write("\n");
-                    for (Integer anOutputColumn : outputColumn)
-                        fileWriter.write(String.format("%-24s", convertToOutput(anOutputColumn,
-                                currentFrame.getData().get(anOutputColumn))));
+
+                fileWriter.write("\n");
+                for (Integer anOutputColumn : outputColumn) {
+                    fileWriter.write(String.format("%-24s",
+                            convertToOutput(anOutputColumn, currentFrame.getData().get(anOutputColumn))));
                 }
+
                 this.checkInputPortForClose(portNum);
 
                 if (this.getNumberOfOpenedInputPorts() < 1) {
