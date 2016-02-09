@@ -22,54 +22,18 @@
  * Internal Methods: None
  ******************************************************************************************************************/
 
-import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-import java.text.DecimalFormat;
-import java.util.*; // This class is used to interpret time words
-import java.text.SimpleDateFormat; // This class is used to format and write time in a string
-// format.
 
-public class SinkAttitudeFilter extends SystemFilter {
-
-    private String convertToOutput(int id, double measurement) {
-        Calendar timeStamp = Calendar.getInstance();
-        SimpleDateFormat timeStampOutputFormat = new SimpleDateFormat("yyyy:MM:dd:hh:mm:ss");
-        DecimalFormat attitudeFormat = new DecimalFormat("000000.00000");
-        DecimalFormat tempFormat = new DecimalFormat("000.00000");
-        DecimalFormat pressureFormat = new DecimalFormat("00.00000");
-        DecimalFormat velocityFormat = new DecimalFormat("000000.00000");
-        DecimalFormat bankFormat = new DecimalFormat("000000.00000");
-        if (id == Frame.TIME_ID) {
-            timeStamp.setTimeInMillis(Double.doubleToLongBits(measurement));
-        }
-
-        switch (id) {
-            case Frame.TIME_ID:
-                return timeStampOutputFormat.format(timeStamp.getTime());
-            case Frame.VELOCITY_ID:
-                return velocityFormat.format(measurement);
-            case Frame.ATTITUDE_ID:
-                return attitudeFormat.format(measurement);
-            case Frame.PRESSURE_ID:
-                return pressureFormat.format(measurement);
-            case Frame.TEMPERATURE_ID:
-                return tempFormat.format(measurement);
-            case Frame.BANK_ID:
-                return bankFormat.format(measurement);
-            default:
-                return Double.toString(measurement);
-        }
-    }
+public class SinkAttitudeFilter extends SinkFilter {
 
     protected String getHeader(int id) {
         switch (id) {
             case Frame.TIME_ID:
                 return "Time:";
             case Frame.VELOCITY_ID:
-                return "Velosity(sec):";
+                return "Velocity (sec):";
             case Frame.ATTITUDE_ID:
-                return "Attitude(feet):";
+                return "Attitude (feet):";
             case Frame.PRESSURE_ID:
                 return "Pressure(psi):";
             case Frame.TEMPERATURE_ID:
@@ -81,70 +45,26 @@ public class SinkAttitudeFilter extends SystemFilter {
         }
     }
 
-    public void run() {
-        String fileName = "LessThan10K.dat"; // Input data file.
-        /* here should be put ID's of data that should be output */
-        int[] outputColumn = {Frame.TIME_ID, Frame.ATTITUDE_ID};
-        /************************************************************************************
-         * timeStamp is used to compute time using java.util's Calendar class. timeStampFormat is
-         * used to format the time value so that it can be easily printed to the terminal.
-         *************************************************************************************/
-        String encoding = "UTF-8";
-        PrintWriter fileWriter;
-        Calendar timeStamp = Calendar.getInstance();
-        SimpleDateFormat timeStampFormat = new SimpleDateFormat("yyyy MM dd::hh:mm:ss:SSS");
+    @Override
+    protected String getFileName() {
+        return "LessThan10K.dat";
+    }
 
+    @Override
+    protected int[] getOutputColumns() {
+        return new int[] {
+            Frame.TIME_ID,
+            Frame.ATTITUDE_ID
+        };
+    }
 
-
-        /*here we initialize file reader. If something goes wrong we'll get exception here*/
-        try {
-            fileWriter = new PrintWriter(fileName, encoding);
-        } catch (FileNotFoundException e) {
-            System.out.print("\n" + fileName + " is not found or locked by other process");
-            return;
-        } catch (UnsupportedEncodingException e) {
-            System.out.print("\n" + encoding + " is not supported");
-            return;
+    @Override
+    protected void writeFileData(PrintWriter fileWriter, Frame currentFrame) {
+        fileWriter.write("\n");
+        for (Integer anOutputColumn : this.getOutputColumns()) {
+            fileWriter.write(String.format("%-24s",
+                    convertToOutput(anOutputColumn, currentFrame.getData().get(anOutputColumn))));
         }
+    }
 
-        for (Integer anOutputColumn : outputColumn) {
-            fileWriter.write(String.format("%-24s", getHeader(anOutputColumn)));
-        }
-
-        /*************************************************************
-         * First we announce to the world that we are alive...
-         **************************************************************/
-
-        System.out.print("\n" + this.getName() + "::Sink Reading ");
-
-        boolean sourcesExist = true;
-        Frame currentFrame;
-
-        while (sourcesExist) {
-            for (int portNum = 0; portNum < this.getTotalNumberOfInputPorts(); portNum++) {
-
-                if (!this.inputPortIsAlive(portNum)) {
-                    continue;
-                }
-
-                currentFrame = this.readCurrentFrame(portNum);
-
-                fileWriter.write("\n");
-                for (Integer anOutputColumn : outputColumn) {
-                    fileWriter.write(String.format("%-24s",
-                            convertToOutput(anOutputColumn, currentFrame.getData().get(anOutputColumn))));
-                }
-
-                this.checkInputPortForClose(portNum);
-
-                if (this.getNumberOfOpenedInputPorts() < 1) {
-                    System.out.print("\n" + this.getName() + "::Sink Exiting; bytes read: " + bytesRead);
-                    fileWriter.close();
-                    sourcesExist = false;
-                    break;
-                }
-
-            }
-        } // while
-    } // run
 } //  SinkFilter
