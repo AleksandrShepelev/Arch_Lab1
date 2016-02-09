@@ -1,9 +1,5 @@
 import java.util.ArrayList;
-import java.util.List;
 
-/**
- * Created by Aidar on 08.02.2016.
- */
 public class MergerFilter extends SystemFilter{
 
     public void run() {
@@ -14,7 +10,7 @@ public class MergerFilter extends SystemFilter{
         Frame currentFrame;
 
         while (sourcesExist) {
-            for (int portNum = 0; portNum < this.getNumberOfOpenedInputPorts(); portNum++) {
+            for (int portNum = 0; portNum < this.getTotalNumberOfInputPorts(); portNum++) {
 
                 if (!this.inputPortIsAlive(portNum)) {
                     continue;

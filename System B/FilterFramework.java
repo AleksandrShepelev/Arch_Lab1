@@ -229,6 +229,11 @@ public class FilterFramework extends Thread {
         return !inputFilter.isAlive();
     } // endOfInputStream
 
+    /**
+     * @TODO Comments
+     *
+     * @return
+     */
     int getNumberOfOpenedInputPorts() {
         int counter = 0;
         for (PipedInputStream inputReadPort : this.inputReadPorts) {
@@ -237,6 +242,15 @@ public class FilterFramework extends Thread {
             }
         }
         return counter;
+    }
+
+    /**
+     * @TODO Comments
+     *
+     * @return
+     */
+    int getTotalNumberOfInputPorts() {
+        return this.inputReadPorts.size();
     }
 
     /***************************************************************************
