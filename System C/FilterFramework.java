@@ -142,7 +142,7 @@ public class FilterFramework extends Thread {
                 if (endOfInputStream(portNum)) {
                     throw new EndOfStreamException("End of input stream reached");
                 } //if
-                sleep(250);
+                sleep(50);
             } // while
         } catch (EndOfStreamException e) {
             throw e;
