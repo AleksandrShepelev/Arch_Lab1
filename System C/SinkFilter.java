@@ -1,5 +1,5 @@
 /******************************************************************************************************************
- * File: BaseSinkFilter.java
+ * File: SinkFilter.java
  * Course: MSIT-SE-M-04
  * Project: Assignment 1
  * Copyright: Copyright (c) 2003 Carnegie Mellon University
@@ -30,25 +30,71 @@ import java.util.*; // This class is used to interpret time words
 import java.text.SimpleDateFormat; // This class is used to format and write time in a string
 // format.
 
-public abstract class BaseSinkFilter extends SystemFilter {
+public class SinkFilter extends SystemFilter {
 
-    protected abstract String convertToOutput(int id, double measurement);
+    private String convertToOutput(int id, double measurement) {
+        Calendar timeStamp = Calendar.getInstance();
+        SimpleDateFormat timeStampOutputFormat = new SimpleDateFormat("yyyy:MM:dd:hh:mm:ss");
+        DecimalFormat attitudeFormat = new DecimalFormat("000000.00000");
+        DecimalFormat tempFormat = new DecimalFormat("000.00000");
+        DecimalFormat pressureFormat = new DecimalFormat("00.00000");
+        DecimalFormat velocityFormat = new DecimalFormat("000000.00000");
+        DecimalFormat bankFormat = new DecimalFormat("000000.00000");
+        if (id == Frame.TIME_ID) {
+            timeStamp.setTimeInMillis(Double.doubleToLongBits(measurement));
+        }
 
-    protected abstract String getHeader(int id);
-    
+        switch (id) {
+            case Frame.TIME_ID:
+                return timeStampOutputFormat.format(timeStamp.getTime());
+            case Frame.VELOCITY_ID:
+                return velocityFormat.format(measurement);
+            case Frame.ATTITUDE_ID:
+                return attitudeFormat.format(measurement);
+            case Frame.PRESSURE_ID:
+                return pressureFormat.format(measurement);
+            case Frame.TEMPERATURE_ID:
+                return tempFormat.format(measurement);
+            case Frame.BANK_ID:
+                return bankFormat.format(measurement);
+            default:
+                return Double.toString(measurement);
+        }
+    }
+
+    protected String getHeader(int id) {
+        switch (id) {
+            case Frame.TIME_ID:
+                return "Time:";
+            case Frame.VELOCITY_ID:
+                return "Velosity(sec):";
+            case Frame.ATTITUDE_ID:
+                return "Attitude(m):";
+            case Frame.PRESSURE_ID:
+                return "Pressure(psi):";
+            case Frame.TEMPERATURE_ID:
+                return "Temperature(C):";
+            case Frame.BANK_ID:
+                return "Bank(m):";
+            default:
+                return "Undefined header:";
+        }
+    }
+
     public void run() {
+        String fileName = "OutputB.dat"; // Input data file.
+        /* here should be put ID's of data that should be output */
+        int[] outputColumn = {Frame.TIME_ID, Frame.TEMPERATURE_ID, Frame.ATTITUDE_ID, Frame.PRESSURE_ID};
         /************************************************************************************
          * timeStamp is used to compute time using java.util's Calendar class. timeStampFormat is
          * used to format the time value so that it can be easily printed to the terminal.
          *************************************************************************************/
-        String fileName = getFileName(); // Input data file.
         String encoding = "UTF-8";
         PrintWriter fileWriter;
         Calendar timeStamp = Calendar.getInstance();
         SimpleDateFormat timeStampFormat = new SimpleDateFormat("yyyy MM dd::hh:mm:ss:SSS");
 
-        /* here should be put ID's of data that should be output */
-        int[] outputColumn = getOutputColumns();
+
 
         /*here we initialize file reader. If something goes wrong we'll get exception here*/
         try {
@@ -61,8 +107,8 @@ public abstract class BaseSinkFilter extends SystemFilter {
             return;
         }
 
-        for (Integer anOutputColumn1 : outputColumn) {
-            fileWriter.write(String.format("%-24s", getHeader(anOutputColumn1)));
+        for (Integer anOutputColumn : outputColumn) {
+            fileWriter.write(String.format("%-24s", getHeader(anOutputColumn)));
         }
 
         /*************************************************************
@@ -85,7 +131,13 @@ public abstract class BaseSinkFilter extends SystemFilter {
 
                 fileWriter.write("\n");
                 for (Integer anOutputColumn : outputColumn) {
-                    fileWriter.write(String.format("%-24s", convertToOutput(anOutputColumn, currentFrame.getData().get(anOutputColumn))));
+
+                    if ((anOutputColumn == Frame.PRESSURE_ID) && (currentFrame.getData().containsKey(Frame.EXTRAPOLATED_PRESSURE))) {
+                        fileWriter.write(String.format("%-24s", convertToOutput(anOutputColumn,
+                                currentFrame.getData().get(Frame.EXTRAPOLATED_PRESSURE)) + "*"));
+                    } else
+                        fileWriter.write(String.format("%-24s", convertToOutput(anOutputColumn,
+                                currentFrame.getData().get(anOutputColumn))));
                 }
 
                 this.checkInputPortForClose(portNum);
@@ -100,8 +152,4 @@ public abstract class BaseSinkFilter extends SystemFilter {
             }
         } // while
     } // run
-
-    protected abstract String getFileName();
-
-    protected abstract int[] getOutputColumns();
-} // BaseSinkFilter
+} //  SinkFilter

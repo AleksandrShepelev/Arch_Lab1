@@ -4,16 +4,14 @@
  * Project: Assignment 1
  * Copyright: SKB Kontur Team (MSIT SE)
  * Date: 06.02.16
- *
+ * <p>
  * Description:
- *
+ * <p>
  * This class represents the abstract filter responsible for converting any data from one unit to another
  * The binary data comes to the input as a sequence of bytes one-by-one
  * The output data is sent as a sequence of bytes one-by-one
- *
+ * <p>
  * To process specific units children classes should implement the method convertData
- *
- *
  ******************************************************************************************************************/
 
 public abstract class DataConverter extends SystemFilter {
@@ -47,9 +45,9 @@ public abstract class DataConverter extends SystemFilter {
                     this.convertData(currentFrame);
                 }
 
-                this.transmitCurrentFrame (currentFrame);
+                this.transmitCurrentFrame(currentFrame);
 
-                this.checkInputPortForClose (portNum);
+                this.checkInputPortForClose(portNum);
 
                 if (this.getNumberOfOpenedInputPorts() < 1) {
 

@@ -4,14 +4,12 @@
  * Project: Assignment 1
  * Copyright: SKB Kontur Team (MSIT SE)
  * Date: 08.02.16
- *
+ * <p>
  * Description:
- *
+ * <p>
  * This class represents the frame with all data inside it
  * It helps to manage data in a systematic structured way and access any frame packet in case
  * of data processing necessities. By "Packet" we mean here the structure represented by ID + DATA BYTES (4 + 8)
- *
- *
  ******************************************************************************************************************/
 
 import java.util.Map;
@@ -30,15 +28,16 @@ public class Frame {
     public final static int BANK_ID = 5; // Bank identity (Like "kren" in Russian analogues)
     public final static int EXTRAPOLATED_PRESSURE = 6; // Pressure that was extrapolated
 
-    private Map <Integer, Double> data = new HashMap<>(); // Hash map with the data
+    private Map<Integer, Double> data = new HashMap<>(); // Hash map with the data
 
-    public Frame () {}
+    public Frame() {
+    }
 
     /**
      *
      * @return Map Key-Value storage with data by its ID
      */
-    public Map <Integer, Double> getData() {
+    public Map<Integer, Double> getData() {
         return this.data;
     }
 }
