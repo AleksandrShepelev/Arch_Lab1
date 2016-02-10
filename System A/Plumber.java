@@ -9,9 +9,9 @@
  * <p>
  * This class creates a main thread that instantiates and connects a set of filters.
  * Here we use five filters - a source which reads data, frameFilter - removes velocity, pressure and bank data from stream,
- * temperature - converts temperature from Farenhaits to Celcius, attitude - converts attitude from feets to meters
+ * temperature - converts temperature from Farenhaits to Celcius, attitude - converts attitude from feet to meters
  * and sink - writes results to file
- * All filters connected sequentally
+ * All filters connected sequentially
  * <p>
  * Parameters: None
  * <p>
@@ -34,10 +34,10 @@ public class Plumber {
          ****************************************************************************/
 
         //System A test
-        sink.connect(attitude); // This esstially says, "connect sink input port to attitude output port
-        attitude.connect(temperature); // This esstially says, "connect attitude input port to temperature output port
-        temperature.connect(frameFilter); // This esstially says, "connect temperature intput port to frameFilter output port
-        frameFilter.connect(source);  // This esstially says, "connect frameFilter intput port to source output port
+        sink.connect(attitude); // This essentially says, "connect sink input port to attitude output port
+        attitude.connect(temperature); // This essentially says, "connect attitude input port to temperature output port
+        temperature.connect(frameFilter); // This essentially says, "connect temperature input port to frameFilter output port
+        frameFilter.connect(source);  // This essentially says, "connect frameFilter itput port to source output port
 
         /****************************************************************************
          * Here we start the filters up. All-in-all,... its really kind of boring.

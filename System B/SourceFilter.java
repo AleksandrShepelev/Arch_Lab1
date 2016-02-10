@@ -4,10 +4,10 @@
  * Project: Assignment 1
  * Copyright: Copyright (c) 2003 Carnegie Mellon University
  * Versions: 1.0 November 2008 - Sample Pipe and Filter code (ajl).
+ *           1.1 February 2016 -  SKB Kontur Team (MSIT SE) - adopting of source filter to extended framework
  * <p>
  * Description:
- * This class serves as an example for how to use the SourceFilterTemplate to create a source
- * filter. This particular filter is a source filter that reads some input from the FlightData.dat
+ *This particular filter is a source filter that reads input from the FlightData.dat
  * file and writes the bytes up stream.
  * <p>
  * Parameters: None

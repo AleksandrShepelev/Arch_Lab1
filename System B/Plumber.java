@@ -7,11 +7,12 @@
  * <p>
  * Description:
  * <p>
- * This class serves as an example to illustrate how to use the PlumberTemplate to create a main
- * thread that instantiates and connects a set of filters. This example consists of three filters: a
- * source, a middle filter that acts as a pass-through filter (it does nothing to the data), and a
- * sink filter which illustrates all kinds of useful things that you can do with the input stream of
- * data.
+ * This class creates a main thread that instantiates and connects a set of filters.
+ * Here we use seven filters - a source which reads data, frameFilter - removes velocity, pressure and bank data from stream,
+ * temperature - converts temperature from Farenhaits to Celcius, attitude - converts attitude from feet to meters,
+ * extrapolator - check pressure for invalid data and exhanges invalid data by calculated valid data,
+ * sinkB - writes correct results to file, sinkWild - writes invalid results to separate file
+ * All filters connected sequentially except for two sinks (sinkB and sinkWild) that are connected to extrapolator simultaneously
  * <p>
  * Parameters: None
  * <p>
@@ -33,15 +34,14 @@ public class Plumber {
 
 
         /****************************************************************************
-         * Here we connect the filters starting with the sink filter (filter1) which we connect to
-         * filter2 the middle filter. Then we connect Filter2 to the source filter (filter3).
+         * Here we connect the filters
          ****************************************************************************/
-        sinkWild.connect(extrapolator);
-        sinkB.connect(extrapolator); // This esstially says, "connect sink input port to attitude output port
-        extrapolator.connect(attitude);
-        attitude.connect(temperature); // This esstially says, "connect attitude input port to temperature output port
-        temperature.connect(frameFilter); // This esstially says, "connect temperature intput port to source output port
-        frameFilter.connect(source);
+        sinkWild.connect(extrapolator);  // This essentially says, "connect sinkWild input port to extrapolator output port
+        sinkB.connect(extrapolator); // This essentially says, "connect sinkB input port to extrapolator output port
+        extrapolator.connect(attitude); // This essentially says, "connect extrapolator input port to attitude output port
+        attitude.connect(temperature); // This essentially says, "connect attitude input port to temperature output port
+        temperature.connect(frameFilter); // This essentially says, "connect temperature input port to frameFilter output port
+        frameFilter.connect(source); // This essentially says, "connect frameFilter input port to source output port
 
         /****************************************************************************
          * Here we start the filters up. All-in-all,... its really kind of boring.
