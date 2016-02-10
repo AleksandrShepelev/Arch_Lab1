@@ -9,7 +9,7 @@
  * <p>
  *
  * This is a parent class for any sinks to be used in the system
- * It is responsible for final data representation
+ * It is responsible for final data representation - it has methods for header creating and formatting data in needed format
  *
  ******************************************************************************************************************/
 
@@ -37,7 +37,9 @@ abstract public class SinkFilter extends SystemFilter {
         DecimalFormat pressureFormat = new DecimalFormat("00.00000");
         DecimalFormat velocityFormat = new DecimalFormat("000000.00000");
         DecimalFormat bankFormat = new DecimalFormat("000000.00000");
-
+        /*
+        time data needs a bit different processing therefore we need to transform them to timeStamp
+         */
         if (id == Frame.TIME_ID) {
             timeStamp.setTimeInMillis(Double.doubleToLongBits(measurement));
         }

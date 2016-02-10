@@ -4,6 +4,7 @@
  * Project: Assignment 1
  * Copyright: Copyright (c) 2003 Carnegie Mellon University
  * Versions: 1.0 November 2008 - Initial rewrite of original assignment 1 (ajl).
+ *           1.1 February 2016 - SKB Kontur Team (MSIT SE) - adopting of framework for multiple pipes
  * <p>
  * Description:
  * This superclass defines a skeletal filter framework that defines a filter in terms of the input
@@ -13,14 +14,14 @@
  * has to do and then terminates.
  * <p>
  * Parameters:
- * inputReadPort: This is the filter's input port. Essentially this port is connected to another
- * filter's piped output steam. All filters connect to other filters by connecting their input ports
+ * inputReadPorts: These are the list of filter's input ports. Essentially these ports are connected to another
+ * filter's piped output steams. All filters connect to other filters by connecting their input ports
  * to other filter's output ports. This is handled by the Connect() method.
- * outputWritePort: This the filter's output port. Essentially the filter's job is to read data from
+ * outputWritePort: These are the filter's output ports. Essentially the filter's job is to read data from
  * the input port, perform some operation on the data, then write the transformed data on the output
  * port.
- * inputFilter: This is a reference to the filter that is connected to the instance filter's
- * input port. This reference is to determine when the upstream filter has stopped sending data
+ * inputFilters: This is a references to the filters that is connected to the instance filter's
+ * input ports. This reference is to determine when the upstream filter has stopped sending data
  * along the pipe.
  * <p>
  * Internal Methods:
@@ -28,6 +29,7 @@
  * public byte readFilterInputPort()
  * public void writeFilterOutputPort(byte datum)
  * public boolean endOfInputStream()
+ * public PipedOutputStream createOutputPort()
  ******************************************************************************************************************/
 
 import java.io.*;
@@ -98,8 +100,9 @@ public class FilterFramework extends Thread {
     } // connect
 
     /**
-     * @TODO WRITE COMMENTS
-     * @return
+     * This method creates new output port for filter and adds it to list
+     * of output ports when this filter is connected to another
+     * @return output port to connect
      */
     private PipedOutputStream createOutputPort() {
         PipedOutputStream outputWritePort = new PipedOutputStream();
@@ -192,8 +195,9 @@ public class FilterFramework extends Thread {
     } // writeFilterPort
 
     /**
-     * @TODO COMMENTS
-     * @param datum
+     * this method writes data to all opened output ports
+     * @param datum - This is the byte that will be written on the output port
+     * of the filter.
      */
     void writeFilterOutputPortsAll(byte datum) {
         for (int i = 0; i < this.outputWritePorts.size(); i++) {
@@ -230,9 +234,8 @@ public class FilterFramework extends Thread {
     } // endOfInputStream
 
     /**
-     * @TODO Comments
+     * This method returns how many opened input ports filter has (when port is closed it is assigned to null variable
      *
-     * @return
      */
     int getNumberOfOpenedInputPorts() {
         int counter = 0;
@@ -245,7 +248,7 @@ public class FilterFramework extends Thread {
     }
 
     /**
-     * @TODO Comments
+     * This method returns how many input ports filter has in total (including closed ports)
      *
      * @return
      */
@@ -254,9 +257,9 @@ public class FilterFramework extends Thread {
     }
 
     /***************************************************************************
-     * CONCRETE METHOD:: closePorts
+     * CONCRETE METHOD:: closeOutputPorts
      *
-     * Purpose: This method is used to close the input and output ports of the filter.
+     * Purpose: This method is used to close the output ports of the filter.
      * It is important that filters close their ports before the filter thread exits.
      *
      * Arguments: void
@@ -279,7 +282,8 @@ public class FilterFramework extends Thread {
 
     /**
      *
-     * @TODO comments
+     * This method closes input port by number of port.
+     * In addition,if there is no opened ports in list, this method closes output ports
      *
      * @param portNum
      */
@@ -322,7 +326,6 @@ public class FilterFramework extends Thread {
     public void run() {
         // The run method should be overridden by the subordinate class. Please
         // see the example applications provided for more details.
-
     } // run
 
 } // FilterFramework class

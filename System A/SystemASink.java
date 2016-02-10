@@ -7,14 +7,17 @@
  * <p>
  * Description:
  * <p>
- *
- * @TODO comments
+ *This filter is realisation of abstract sink filter. it specifies name of the file where we have to write
+ * which columns we need to write and algoritm of writing
  ******************************************************************************************************************/
 
 import java.io.PrintWriter;
 
 public class SystemASink extends SinkFilter {
 
+    /*
+    name of output file
+     */
     private static final String FILE_NAME = "OutputA.dat";
 
     @Override
@@ -22,6 +25,9 @@ public class SystemASink extends SinkFilter {
         return FILE_NAME;
     }
 
+    /*
+    columns id's that have to be written
+     */
     @Override
     protected int[] getOutputColumns() {
         return new int[] {
@@ -31,6 +37,11 @@ public class SystemASink extends SinkFilter {
         };
     }
 
+    /*
+    how we should write data to output file (sometimes order of writing might be different from standard
+     or some additional symbols need to be added)
+     in this case, format of writing is standard: for each column data is written without any changes
+     */
     @Override
     protected void writeFileData(PrintWriter fileWriter, Frame currentFrame) {
 
