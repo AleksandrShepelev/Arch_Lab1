@@ -1,5 +1,3 @@
-import java.io.PrintWriter;
-
 /******************************************************************************************************************
  * File: SystemCSink.java
  * Course: Software Architecture
@@ -10,7 +8,7 @@ import java.io.PrintWriter;
  * Description:
  * <p>
  *
- * @TODO comments
+ * in this class we change name of file of reused from previous system sink filter
  ******************************************************************************************************************/
 
 public class SystemCSink extends SystemBSink {

@@ -1,5 +1,3 @@
-import java.io.PrintWriter;
-
 /******************************************************************************************************************
  * File: SystemBSink.java
  * Course: Software Architecture
@@ -13,6 +11,7 @@ import java.io.PrintWriter;
  * this class writes correct data to file. If pressure were extrapolated than it writes extrapolated value and
  * and '*' symbol to this data
  ******************************************************************************************************************/
+import java.io.PrintWriter;
 
 public class SystemBSink extends SinkFilter {
     /*

@@ -12,7 +12,15 @@ import java.util.Map;
  * <p>
  * Description:
  * <p>
- * This is filter for unnecessary data
+ * This filter checks pressure data on invalid numbers
+ * number is invalid when it is negative or it differs from previous sample on more then 10 psi
+ * if invalid number in the beginning then it is exchanged to first meet valid.
+ * If in file is no valid data, then all data exchanged by 0
+ * if invalid number in the end of stream it is exchanged by last valid data
+ * if invalid number in the middle than it exchanged on extrapolated number (between two valids) - in this case data consider
+ * valid only when next pair of positive data with low delta (<10 psi) is found
+ * (in this case first number in pair marked as invalid, second - valid)
+ *
  ******************************************************************************************************************/
 
 public class ExtrapolatorFilter extends SystemFilter {
@@ -21,7 +29,7 @@ public class ExtrapolatorFilter extends SystemFilter {
 
         boolean sourcesExist = true;
         Frame currentFrame;
-
+        final int maxVariance = 10;
         Frame lastValidFrame = null;
         Frame previousFrame = null;
         List<Frame> invalidFrames = new ArrayList<>();
@@ -61,7 +69,7 @@ public class ExtrapolatorFilter extends SystemFilter {
                     } else {
                         double currentValue = currentFrame.getData().get(Frame.PRESSURE_ID);
                         double previousValue = previousFrame.getData().get(Frame.PRESSURE_ID);
-                        if (Math.abs(previousValue - currentValue) > 10) {
+                        if (Math.abs(previousValue - currentValue) > maxVariance) {
                             invalidFrames.add(Frame.copyFrom(currentFrame));
                         } else {
                             double lastValidValue = lastValidFrame.getData().get(Frame.PRESSURE_ID);

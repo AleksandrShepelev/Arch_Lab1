@@ -7,11 +7,15 @@
  * <p>
  * Description:
  * <p>
- * This class serves as an example to illustrate how to use the PlumberTemplate to create a main
- * thread that instantiates and connects a set of filters. This example consists of three filters: a
- * source, a middle filter that acts as a pass-through filter (it does nothing to the data), and a
- * sink filter which illustrates all kinds of useful things that you can do with the input stream of
- * data.
+ * This class creates a main thread that instantiates and connects a set of filters.
+ * Here we use twelve filters - a sourceA which reads data from one file, sourceB which reads data from second file,
+ * merger - which merges data from two dataflows and sorts them
+ * belowFilter - transmits data below 10k feet, aboveFilter - transmit data above 10k feet
+ * frameFilter - removes velocity, pressure and bank data from stream,
+ * temperature - converts temperature from Farenhaits to Celcius, attitude - converts attitude from feet to meters,
+ * extrapolator - check pressure for invalid data and exhanges invalid data by calculated valid data,
+ * sinkC - writes correct results to file, sinkWild - writes invalid results (with invalid pressure) to separate file,
+ * sinkAttitude - writes data less then 10k feet in another file
  * <p>
  * Parameters: None
  * <p>
@@ -39,8 +43,7 @@ public class Plumber {
 
 
         /****************************************************************************
-         * Here we connect the filters starting with the sink filter (filter1) which we connect to
-         * filter2 the middle filter. Then we connect Filter2 to the source filter (filter3).
+         * Here we connect the filters
          ****************************************************************************/
         merger.connect(sourceA);
         merger.connect(sourceB);

@@ -1,11 +1,25 @@
+/******************************************************************************************************************
+ * File: Utils.java
+ * Course: Software Architecture
+ * Project: Assignment 1
+ * Copyright: SKB Kontur Team (MSIT SE)
+ * Date: 06.02.16
+ * <p>
+ * Description:
+ * <p>
+ * This class contains supporting methods
+ *
+ ******************************************************************************************************************/
+
 import java.util.ArrayList;
-import java.util.List;
 
-/**
- * Created by Aidar on 09.02.2016.
- */
 public class Utils {
-
+    /**
+     * Method for insertion sort realization
+     * @param list - sorted list of frame objects
+     * @param element - object that have to be inserted
+     * @param sortParam - id of field in frame. We sort by this field
+     */
     public static void InsertIntoSortedList(ArrayList<Frame> list, Frame element, int sortParam){
         boolean isInserted = false;
 
@@ -20,9 +34,7 @@ public class Utils {
         }
 
         if (!isInserted) {
-            //System.out.println("inserted");
             list.add(element);
         }
-        //return list;
     }
 }

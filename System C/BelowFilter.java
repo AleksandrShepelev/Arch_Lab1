@@ -7,7 +7,7 @@
  *
  * Description:
  *
- * This is filter for unnecessary data
+ * This filter remove data from dataflow that has attitude more or equal then 10K feet
  *
  *
  ******************************************************************************************************************/

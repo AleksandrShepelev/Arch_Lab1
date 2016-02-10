@@ -1,31 +1,25 @@
 /******************************************************************************************************************
- * File: SinkFilter.java
- * Course: MSIT-SE-M-04
+ * File: SinkAttitudeFilter.java
+ * Course: Software Architecture
  * Project: Assignment 1
- * Copyright: Copyright (c) 2003 Carnegie Mellon University
- * Versions: 1.0 November 2008 - Sample Pipe and Filter code (ajl).
+ * Copyright: SKB Kontur Team (MSIT SE)
+ * Date: 09.02.16
  * <p>
  * Description:
  * <p>
- * This class serves as an example for using the SinkFilterTemplate for creating a sink filter. This
- * particular filter reads some input from the filter's input port and does the following:
- * <p>
- * 1) It parses the input stream and "decommutates" the measurement ID 2) It parses the input steam
- * for measurements and "decommutates" measurements, storing the bits in a long word.
- * <p>
- * This filter illustrates how to convert the byte stream data from the upstream filter into usable
- * data found in the stream: namely time (long type) and measurements (double type).
- * <p>
- * <p>
- * Parameters: None
- * <p>
- * Internal Methods: None
+ *
+ * this class is realization of abstract Sink class which writes data that have less than 10k feet attitude in separate file
+ *
  ******************************************************************************************************************/
 
 import java.io.PrintWriter;
 
 public class SinkAttitudeFilter extends SinkFilter {
 
+    /*
+    this procedure overrides getHeader method in sinkFilter because it returns 'attitude(m)' header but we need feets here
+     */
+    @Override
     protected String getHeader(int id) {
         switch (id) {
             case Frame.TIME_ID:
@@ -44,12 +38,17 @@ public class SinkAttitudeFilter extends SinkFilter {
                 return "Undefined header:";
         }
     }
-
+    /*
+    name of file to write
+    */
     @Override
     protected String getFileName() {
         return "LessThan10K.dat";
     }
 
+    /*
+    columns to be written
+     */
     @Override
     protected int[] getOutputColumns() {
         return new int[] {

@@ -7,11 +7,13 @@
  * <p>
  * Description:
  * <p>
- * This is filter for unnecessary data
+ * This filter removes unnececary data from dataflow
  ******************************************************************************************************************/
 
 public class FrameFilter extends SystemFilter {
-
+    /*
+       in filterElements array determined id-s of elements that should be skipped
+       */
     private int[] filterElements = new int[]{Frame.BANK_ID, Frame.VELOCITY_ID};
 
     public void run() {

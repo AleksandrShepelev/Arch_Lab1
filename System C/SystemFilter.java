@@ -123,8 +123,8 @@ public abstract class SystemFilter extends FilterFramework {
     }
 
     /**
-     * @TODO Comments
-     * @param portNum
+     * this method check port if it need to be closed: if end of stream of dataflow in this port is reached, we close port
+     * @param portNum - number of port to be checked
      */
     protected void checkInputPortForClose(int portNum) {
         if (this.endOfStreamInPort(portNum)) {
@@ -135,10 +135,8 @@ public abstract class SystemFilter extends FilterFramework {
     }
 
     /**
-     * @TODO Comments
-     *
-     * @param portNum
-     * @return
+     * this method return if end of stream in port is reached
+     * @param portNum - number of port to be checked
      */
     protected boolean endOfStreamInPort(int portNum) {
         return this.portToClose != null && this.portToClose == portNum;

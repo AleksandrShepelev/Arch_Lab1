@@ -1,3 +1,15 @@
+/******************************************************************************************************************
+ * File: MergerFilter.java
+ * Course: Software Architecture
+ * Project: Assignment 1
+ * Copyright: SKB Kontur Team (MSIT SE)
+ * Date: 11.02.16
+ * <p>
+ * Description:
+ * <p>
+ * This filter merge data from two dataflows in one. In addition, it sorts data by time in ascending order
+ ******************************************************************************************************************/
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;

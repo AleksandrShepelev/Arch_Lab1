@@ -1,5 +1,3 @@
-import java.io.PrintWriter;
-
 /******************************************************************************************************************
  * File: SystemBSink.java
  * Course: Software Architecture
@@ -10,11 +8,15 @@ import java.io.PrintWriter;
  * Description:
  * <p>
  *
- * @TODO comments
+ * this class writes correct data to file. If pressure were extrapolated than it writes extrapolated value and
+ * and '*' symbol to this data
  ******************************************************************************************************************/
+import java.io.PrintWriter;
 
 public class SystemBSink extends SinkFilter {
-
+    /*
+    name of file
+    */
     private static final String FILE_NAME = "OutputB.dat";
 
     @Override
@@ -22,6 +24,9 @@ public class SystemBSink extends SinkFilter {
         return FILE_NAME;
     }
 
+    /*
+    columns that have to be written
+    */
     @Override
     protected int[] getOutputColumns() {
         return new int[] {
@@ -32,6 +37,10 @@ public class SystemBSink extends SinkFilter {
         };
     }
 
+    /**
+     *in this method we write data to file. If extrapolated data exists we write them with "*"
+     * otherwise we write original pressure data
+     */
     @Override
     protected void writeFileData(PrintWriter fileWriter, Frame currentFrame) {
 
