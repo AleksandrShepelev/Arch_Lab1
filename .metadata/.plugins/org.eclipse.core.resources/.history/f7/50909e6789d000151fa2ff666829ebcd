@@ -1,0 +1,12 @@
+/AboveFilter.class
+/AttitudeFilter.class
+/BelowFilter.class
+/DataConverter.class
+/ExtrapolatorFilter.class
+/FilterFramework$EndOfStreamException.class
+/FilterFramework.class
+/Frame.class
+/FrameFilter.class
+/MergerFilter.class
+/Plumber.class
+/SinkAttitudeFilter.class
