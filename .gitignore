@@ -7,3 +7,7 @@ OutputC.dat
 WildPoints.dat
 LessThan10K.dat
 PressureWildPoints.dat
+.metadata
+RemoteSystemsTempFiles
+*.project
+*.classpath

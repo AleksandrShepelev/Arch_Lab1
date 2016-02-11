@@ -1,5 +1,5 @@
 /******************************************************************************************************************
- * File: SystemBSink.java
+ * File: ExtrapolatorSink.java
  * Course: Software Architecture
  * Project: Assignment 1
  * Copyright: SKB Kontur Team (MSIT SE)
@@ -13,9 +13,9 @@
  ******************************************************************************************************************/
 import java.io.PrintWriter;
 
-public class SystemBSink extends SinkFilter {
+public class ExtrapolatorSink extends SinkFilter {
 
-    public SystemBSink(String fileName) {
+    public ExtrapolatorSink(String fileName) {
         super(fileName);
     }
 

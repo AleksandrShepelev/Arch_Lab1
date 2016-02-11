@@ -14,7 +14,7 @@
 /SinkWildPointsCFilter.class
 /SinkWildPointsFilter.class
 /SourceFilter.class
-/SystemBSink.class
+/ExtrapolatorSink.class
 /SystemCSink.class
 /SystemFilter.class
 /TemperatureFilter.class
