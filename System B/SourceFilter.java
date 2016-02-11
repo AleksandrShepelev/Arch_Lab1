@@ -20,7 +20,8 @@
 import java.io.*; // note we must add this here since we use BufferedReader class to read from the
 // keyboard
 
-public class SourceFilter extends FilterFramework {
+public class SourceFilter extends SystemFilter {
+
     private String fileName = "FlightData.dat";
 
     /**
