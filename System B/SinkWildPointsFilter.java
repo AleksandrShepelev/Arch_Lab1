@@ -17,10 +17,10 @@
 import java.io.PrintWriter;
 
 public class SinkWildPointsFilter extends SinkFilter {
-    /*
-    name of file
-     */
-    private static final String FILE_NAME = "WildPoints.dat";
+
+    public SinkWildPointsFilter(String fileName) {
+        super(fileName);
+    }
 
     /*
     check if extrapolated pressure exists in frame. If true then it writes original value to file
@@ -35,11 +35,6 @@ public class SinkWildPointsFilter extends SinkFilter {
                         currentFrame.getData().get(anOutputColumn))));
             }
         }
-    }
-
-    @Override
-    protected String getFileName() {
-        return FILE_NAME;
     }
 
     /*

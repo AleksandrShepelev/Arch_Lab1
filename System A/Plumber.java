@@ -26,7 +26,7 @@ public class Plumber {
         SourceFilter source = new SourceFilter();
         TemperatureFilter temperature = new TemperatureFilter();
         AttitudeFilter attitude = new AttitudeFilter();
-        SystemASink sink = new SystemASink();
+        SystemASink sink = new SystemASink("OutputA.dat");
         FrameFilter frameFilter = new FrameFilter();
 
         /****************************************************************************

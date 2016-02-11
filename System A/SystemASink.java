@@ -15,14 +15,14 @@ import java.io.PrintWriter;
 
 public class SystemASink extends SinkFilter {
 
-    /*
-    name of output file
-     */
-    private static final String FILE_NAME = "OutputA.dat";
 
-    @Override
-    protected String getFileName() {
-        return FILE_NAME;
+    /**
+     * Constructor to pass the file name
+     *
+     * @param outputFileName String
+     */
+    public SystemASink(String outputFileName) {
+        super(outputFileName);
     }
 
     /*

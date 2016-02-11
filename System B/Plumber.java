@@ -28,8 +28,8 @@ public class Plumber {
         ExtrapolatorFilter extrapolator = new ExtrapolatorFilter();
         TemperatureFilter temperature = new TemperatureFilter();
         AttitudeFilter attitude = new AttitudeFilter();
-        SystemBSink sinkB = new SystemBSink();
-        SinkWildPointsFilter sinkWild = new SinkWildPointsFilter();
+        SystemBSink sinkB = new SystemBSink("OutputB.dat");
+        SinkWildPointsFilter sinkWild = new SinkWildPointsFilter("WildPoints.dat");
         FrameFilter frameFilter = new FrameFilter();
 
 

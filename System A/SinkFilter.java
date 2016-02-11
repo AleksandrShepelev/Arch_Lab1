@@ -22,6 +22,17 @@ import java.text.SimpleDateFormat;
 
 abstract public class SinkFilter extends SystemFilter {
 
+    protected String fileName = "";
+
+    /**
+     * Constructor to pass the file name
+     *
+     * @param outputFileName String
+     */
+    public SinkFilter (String outputFileName) {
+        this.fileName = outputFileName;
+    }
+
     /**
      * This methods formats the final representation of the measurements according to the data type (by ID)
      *
@@ -92,7 +103,9 @@ abstract public class SinkFilter extends SystemFilter {
      *
      * @return String file name to write the output
      */
-    protected abstract String getFileName();
+    protected String getFileName() {
+        return this.fileName;
+    }
 
     /**
      * @return Default file encoding
