@@ -7,7 +7,7 @@
  * <p>
  * Description:
  * <p>
- * This class represents the filter responsible for converting temperature from feet to meters
+ * This class represents the filter responsible for converting attitude from feet to meters
  * by means of implementing parent method convertData
  ******************************************************************************************************************/
 

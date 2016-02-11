@@ -15,8 +15,11 @@ public class TemperatureFilter extends DataConverter {
 
     @Override
     protected void convertData(Frame frameToProcess) {
-        Double value = frameToProcess.getData().get(this.getMeasurementId());
-        value = (value - 32) / 1.8;
+        double value = Frame.MISSED_VALUE_INSIDE_PACKET;
+        if (frameToProcess.getData().containsKey(this.getMeasurementId())) {
+            value = frameToProcess.getData().get(this.getMeasurementId());
+            value = (value - 32) / 1.8;
+        }
         frameToProcess.getData().put(this.getMeasurementId(), value);
     }
 

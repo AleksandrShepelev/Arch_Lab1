@@ -35,7 +35,8 @@ public class BelowFilter extends SystemFilter {
                 // this is the frame read from input port
                 currentFrame = this.readCurrentFrame(portNum);
 
-                if (currentFrame.getData().get(Frame.ATTITUDE_ID) < level) {
+                if (currentFrame.getData().containsKey(Frame.ATTITUDE_ID) &&
+                        currentFrame.getData().get(Frame.ATTITUDE_ID) < level) {
                     this.transmitCurrentFrame (currentFrame);
                 }
 

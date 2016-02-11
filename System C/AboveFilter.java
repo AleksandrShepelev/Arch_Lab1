@@ -7,8 +7,7 @@
  *
  * Description:
  *
- * This filter remove data from dataflow that has attitude less then 10K feet
- *
+ * This filter removes data from the stream has attitude less then 10K feet
  *
  ******************************************************************************************************************/
 
@@ -36,7 +35,8 @@ public class AboveFilter extends SystemFilter {
                 currentFrame = this.readCurrentFrame(portNum);
 
                 // filter data above 10k
-                if (currentFrame.getData().get(Frame.ATTITUDE_ID) >= level) {
+                if (currentFrame.getData().containsKey(Frame.ATTITUDE_ID) &&
+                        currentFrame.getData().get(Frame.ATTITUDE_ID) >= level) {
                     this.transmitCurrentFrame (currentFrame);
                 }
 

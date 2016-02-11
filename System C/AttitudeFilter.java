@@ -7,7 +7,7 @@
  * <p>
  * Description:
  * <p>
- * This class represents the filter responsible for converting temperature from feet to meters
+ * This class represents the filter responsible for converting attitude from feet to meters
  * by means of implementing parent method convertData
  ******************************************************************************************************************/
 
@@ -15,8 +15,11 @@ public class AttitudeFilter extends DataConverter {
 
     @Override
     protected void convertData(Frame frameToProcess) {
-        double value = frameToProcess.getData().get(this.getMeasurementId());
-        value *= 0.3048;
+        double value = Frame.MISSED_VALUE_INSIDE_PACKET;
+        if (frameToProcess.getData().containsKey(this.getMeasurementId())) {
+            value = frameToProcess.getData().get(this.getMeasurementId());
+            value *= 0.3048;
+        }
         frameToProcess.getData().put(this.getMeasurementId(), value);
     }
 

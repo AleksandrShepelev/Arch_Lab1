@@ -17,6 +17,12 @@ import java.util.HashMap;
 
 public class Frame {
 
+    /**
+     * used to indicate empty value inside packet in case if packet is broken
+     * for instance, if there is no temperature data inside the packet
+     */
+    public static final double MISSED_VALUE_INSIDE_PACKET = -999999999;
+
     public static final int DATA_LENGTH = 8; // This is the length of all measurements (including time) in bytes per one data packet
     public static final int ID_LENGTH = 4; // This is the length of IDs in the byte stream
 
