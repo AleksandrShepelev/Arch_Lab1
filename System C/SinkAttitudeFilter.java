@@ -16,6 +16,10 @@ import java.io.PrintWriter;
 
 public class SinkAttitudeFilter extends SinkFilter {
 
+    public SinkAttitudeFilter(String fileName) {
+        super(fileName);
+    }
+
     /*
     this procedure overrides getHeader method in sinkFilter because it returns 'attitude(m)' header but we need feets here
      */
@@ -37,13 +41,6 @@ public class SinkAttitudeFilter extends SinkFilter {
             default:
                 return "Undefined header:";
         }
-    }
-    /*
-    name of file to write
-    */
-    @Override
-    protected String getFileName() {
-        return "LessThan10K.dat";
     }
 
     /*

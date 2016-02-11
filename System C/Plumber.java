@@ -33,12 +33,12 @@ public class Plumber {
         ExtrapolatorFilter extrapolator = new ExtrapolatorFilter();
         TemperatureFilter temperature = new TemperatureFilter();
         AttitudeFilter attitude = new AttitudeFilter();
-        SystemCSink sinkC = new SystemCSink();
-        SinkWildPointsCFilter sinkWild = new SinkWildPointsCFilter();
+        SystemBSink sinkC = new SystemBSink("OutputC.dat");
+        SinkWildPointsFilter sinkWild = new SinkWildPointsFilter("PressureWildPoints.dat");
         FrameFilter frameFilter = new FrameFilter();
         AboveFilter aboveFilter = new AboveFilter();
         BelowFilter belowFilter = new BelowFilter();
-        SinkAttitudeFilter sinkAttitude = new SinkAttitudeFilter();
+        SinkAttitudeFilter sinkAttitude = new SinkAttitudeFilter("LessThan10K.dat");
         MergerFilter merger = new MergerFilter();
 
 

@@ -14,19 +14,11 @@
 import java.io.PrintWriter;
 
 public class SystemBSink extends SinkFilter {
-    /*
-    name of file
-    */
-    private static final String FILE_NAME = "OutputB.dat";
 
-    @Override
-    protected String getFileName() {
-        return FILE_NAME;
+    public SystemBSink(String fileName) {
+        super(fileName);
     }
 
-    /*
-    columns that have to be written
-    */
     @Override
     protected int[] getOutputColumns() {
         return new int[] {
