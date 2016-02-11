@@ -4,7 +4,7 @@
  * Project: Assignment 1
  * Copyright: Copyright (c) 2003 Carnegie Mellon University
  * Versions: 1.0 November 2008 - Sample Pipe and Filter code (ajl).
- *           1.1 February 2016 -  SKB Kontur Team (MSIT SE) - adopting of source filter to extended framework
+ *           1.1 February 2016 -  SKB Kontur Team (MSIT SE) - adopting of source filter to be used with different source files
  * <p>
  * Description:
  *This particular filter is a source filter that reads input from the FlightData.dat
@@ -13,6 +13,8 @@
  * Parameters: name of file to read - optionally
  * <p>
  * Internal Methods: None
+ *
+ *
  ******************************************************************************************************************/
 
 import java.io.*; // note we must add this here since we use BufferedReader class to read from the
@@ -20,14 +22,18 @@ import java.io.*; // note we must add this here since we use BufferedReader clas
 
 public class SourceFilter extends FilterFramework {
     private String fileName = "FlightData.dat";
-    /*
-    with empty costructor source file for filter will be FilghtData
+
+    /**
+     * empty constructor source file for filter will be FlightData
      */
     public SourceFilter() {
 
     }
-    /*
-    with non-empty constructor we might read from custom file
+
+    /**
+     * With non-empty constructor we might read from custom file
+     *
+     * @param fileName String source file name
      */
     public SourceFilter(String fileName) {
         this.fileName = fileName;
