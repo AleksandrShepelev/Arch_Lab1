@@ -24,16 +24,18 @@ public abstract class SystemFilter extends FilterFramework {
     protected int bytesRead = 0; // Number of bytes read from the input file.
     protected int bytesWritten = 0; // Number of bytes written to the stream.
 
+    /**
+     * contains next frames data needed to store the first packet from next frame
+     * because of necessity to split the whole byte stream by time id
+     */
     private Map<Integer, Frame> nextFrames = new HashMap<>();
-
-    private Frame nextFrame = null; // Next frame container...we need it when we stop reading to the first and return the data
 
     protected Integer portToClose = null; // contains the port that should be closed now
 
     /**
      *  This method takes as an argument the frame to be transmitted and sends it byte-by-byte starting
      *  from package ID to the next filter
-     *  We don't care about the order of the packets inside the frame, therefore we can iterate thorugh the HashMap
+     *  We don't care about the order of the packets inside the frame, therefore we can iterate through the HashMap
      *
      * @param frameToTransmit Frame the frame to be transmitted to the next filter
      */
@@ -53,12 +55,11 @@ public abstract class SystemFilter extends FilterFramework {
                 bytesWritten++;
             }
 
-            // send further byte by byte
-            // we should start from higher bites to lower to preserve the order
+            // the same as previous but for packet body, which has another length
             measurement = Double.doubleToLongBits(entry.getValue());
             for (i = 0; i < Frame.DATA_LENGTH; i++) {
                 dataByte = (byte) ((measurement >> 8 * (Frame.DATA_LENGTH - 1 - i)) & 0xFF);
-                //transmit data further to the next filter
+
                 writeFilterOutputPortsAll(dataByte);
                 bytesWritten++;
             }
@@ -74,17 +75,20 @@ public abstract class SystemFilter extends FilterFramework {
     protected Frame readCurrentFrame(int portNumber) {
         int currentId; //Current measurement data id (also for time)
 
-        long measurement; // This is the word used to store all measurements - conversions are illustrated.
+        long measurement; // Used to store all measurements
 
         Frame currentFrame = new Frame();
 
         Frame nextFrame;
+
         if (!nextFrames.containsKey(portNumber)) {
             nextFrames.put(portNumber, null);
         }
 
         nextFrame = nextFrames.get(portNumber);
 
+        // in case if next frame is not empty means it was set on the previous cycle of reading
+        // therefore, we should take from there bytes for current frame
         if (nextFrame != null) {
             currentFrame = Frame.copyFrom(nextFrame);
         }
@@ -102,7 +106,7 @@ public abstract class SystemFilter extends FilterFramework {
                 //
                 if (currentId == Frame.TIME_ID) {
                     if (nextFrame != null) {
-                        // pack data
+                        // save data for the next frame
                         nextFrame.getData().put(currentId, Double.longBitsToDouble(measurement));
                         return currentFrame;
                     } else {
@@ -117,6 +121,7 @@ public abstract class SystemFilter extends FilterFramework {
                 //fire event for closing port outside!
                 this.portToClose = portNumber;
 
+                // we still could have read something before the exception, for instance, we read the last frame
                 return currentFrame;
             } // try-catch
         }
@@ -197,8 +202,7 @@ public abstract class SystemFilter extends FilterFramework {
 
             // If this is not the last byte, then slide the
             if (i != measurementLength - 1) { // previously appended byte to the left by one byte
-                measurement = measurement << 8; // to make room for the next byte we append to the
-                // measurement
+                measurement = measurement << 8; // to make room for the next byte we append to the measurement
             } // if
 
         } // for

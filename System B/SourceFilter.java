@@ -4,24 +4,42 @@
  * Project: Assignment 1
  * Copyright: Copyright (c) 2003 Carnegie Mellon University
  * Versions: 1.0 November 2008 - Sample Pipe and Filter code (ajl).
- *           1.1 February 2016 -  SKB Kontur Team (MSIT SE) - adopting of source filter to extended framework
+ *           1.1 February 2016 -  SKB Kontur Team (MSIT SE) - adopting of source filter to be used with different source files
  * <p>
  * Description:
  *This particular filter is a source filter that reads input from the FlightData.dat
  * file and writes the bytes up stream.
  * <p>
- * Parameters: None
+ * Parameters: name of file to read - optionally
  * <p>
  * Internal Methods: None
+ *
+ *
  ******************************************************************************************************************/
 
 import java.io.*; // note we must add this here since we use BufferedReader class to read from the
 // keyboard
 
 public class SourceFilter extends FilterFramework {
+    private String fileName = "FlightData.dat";
+
+    /**
+     * empty constructor source file for filter will be FlightData
+     */
+    public SourceFilter() {
+
+    }
+
+    /**
+     * With non-empty constructor we might read from custom file
+     *
+     * @param fileName String source file name
+     */
+    public SourceFilter(String fileName) {
+        this.fileName = fileName;
+    }
 
     public void run() {
-        String fileName = "FlightData.dat"; // Input data file.
         int bytesRead = 0; // Number of bytes read from the input file.
         int bytesWritten = 0; // Number of bytes written to the stream.
         DataInputStream in = null; // File stream reference.
