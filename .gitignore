@@ -11,3 +11,5 @@ PressureWildPoints.dat
 RemoteSystemsTempFiles
 *.project
 *.classpath
+.metadata
+RemoteSystemsTempFiles
