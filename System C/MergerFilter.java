@@ -34,7 +34,7 @@ public class MergerFilter extends SystemFilter{
 
                 currentFrame = this.readCurrentFrame(portNum);
                 //collecting and sorting all frames into ArrayList
-                Utils.InsertIntoSortedList(mergedSortedFrames, currentFrame, Frame.TIME_ID);
+                InsertIntoSortedList(mergedSortedFrames, currentFrame, Frame.TIME_ID);
 
                 if (this.endOfStreamInPort(portNum)) {
                     portsToClose.put(portNum, true);
@@ -64,4 +64,29 @@ public class MergerFilter extends SystemFilter{
                 bytesRead + " bytes written: " + bytesWritten);
 
     }
+
+    /**
+     * Method for insertion sort realization
+     * @param list - sorted list of frame objects
+     * @param element - object that have to be inserted
+     * @param sortParam - id of field in frame. We sort by this field
+     */
+    private void InsertIntoSortedList(ArrayList<Frame> list, Frame element, int sortParam){
+        boolean isInserted = false;
+
+        for (int i=0; i < list.size(); i++){
+            if(list.get(i).getData().get(sortParam) > element.getData().get(sortParam)){
+                list.add(element);
+                isInserted=true;
+                break;
+            }else {
+                continue;
+            }
+        }
+
+        if (!isInserted) {
+            list.add(element);
+        }
+    }
+
 }

@@ -22,14 +22,7 @@ import java.io.*; // note we must add this here since we use BufferedReader clas
 
 public class SourceFilter extends SystemFilter {
 
-    private String fileName = "FlightData.dat";
-
-    /**
-     * empty constructor source file for filter will be FlightData
-     */
-    public SourceFilter() {
-
-    }
+    private String fileName;
 
     /**
      * With non-empty constructor we might read from custom file
@@ -39,6 +32,8 @@ public class SourceFilter extends SystemFilter {
     public SourceFilter(String fileName) {
         this.fileName = fileName;
     }
+
+
 
     public void run() {
         int bytesRead = 0; // Number of bytes read from the input file.

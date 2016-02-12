@@ -22,17 +22,10 @@ import java.io.*; // note we must add this here since we use BufferedReader clas
 
 public class SourceFilter extends SystemFilter {
 
-    private String fileName = "FlightData.dat";
+    private String fileName;
 
     /**
-     * empty constructor source file for filter will be FlightData
-     */
-    public SourceFilter() {
-
-    }
-
-    /**
-     * With non-empty constructor we might read from custom file
+     * With non-empty constructor we can read from custom file
      *
      * @param fileName String source file name
      */

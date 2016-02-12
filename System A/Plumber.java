@@ -1,3 +1,5 @@
+import java.io.File;
+
 /******************************************************************************************************************
  * File: Plumber.java
  * Course: Software Architecture
@@ -18,12 +20,26 @@
  * Internal Methods: None
  ******************************************************************************************************************/
 public class Plumber {
+
     public static void main(String argv[]) {
+        /***
+         * default output filename
+         */
+        String inputFile = "FlightData.dat";
+
+        if (argv.length>0) {
+            inputFile = argv[0];
+        }
+
+        if (!checkFile(inputFile)) {
+            System.out.println("Application terminated");
+            return;
+        }
         /****************************************************************************
          * Here we instantiate four filters.
          ****************************************************************************/
 
-        SourceFilter source = new SourceFilter();
+        SourceFilter source = new SourceFilter(inputFile);
         TemperatureFilter temperature = new TemperatureFilter();
         AttitudeFilter attitude = new AttitudeFilter();
         SystemASink sink = new SystemASink("OutputA.dat");
@@ -50,4 +66,14 @@ public class Plumber {
         sink.start();
 
     } // main
+
+    private static boolean checkFile(String fileName) {
+        File f = new File(fileName);
+        if (!(f.exists() & !f.isDirectory())) {
+            System.out.println("File " + fileName + " does not exist");
+            return false;
+        } else {
+            return true;
+        }
+    }
 } // Plumber

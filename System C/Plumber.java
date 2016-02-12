@@ -1,3 +1,5 @@
+import java.io.File;
+
 /******************************************************************************************************************
  * File: Plumber.java
  * Course: Software Architecture
@@ -23,12 +25,33 @@
  ******************************************************************************************************************/
 public class Plumber {
     public static void main(String argv[]) {
+
+        /***
+         * default output filenames
+         */
+        String inputFileA = "SubSetA.dat";
+        String inputFileB = "SubSetB.dat";
+
+        if (argv.length==1) {
+            System.out.println("System is expecting two input files. Application terminated");
+            return;
+        }
+        else
+            if (argv.length>1) {
+                inputFileA = argv[0];
+                inputFileB = argv[1];
+            }
+
+        if (!checkFile(inputFileA) || !checkFile(inputFileB)) {
+            System.out.println("Application terminated");
+            return;
+        }
         /****************************************************************************
          * Here we instantiate four filters.
          ****************************************************************************/
 
-        SourceFilter sourceA = new SourceFilter("SubSetA.dat");
-        SourceFilter sourceB = new SourceFilter("SubSetB.dat");
+        SourceFilter sourceA = new SourceFilter(inputFileA);
+        SourceFilter sourceB = new SourceFilter(inputFileB);
 
         ExtrapolatorFilter extrapolator = new ExtrapolatorFilter();
         TemperatureFilter temperature = new TemperatureFilter();
@@ -80,4 +103,13 @@ public class Plumber {
         sinkWild.start();
         sinkAttitude.start();
     } // main
+    private static boolean checkFile(String fileName) {
+        File f = new File(fileName);
+        if (!(f.exists() & !f.isDirectory())) {
+            System.out.println("File " + fileName + " does not exist");
+            return false;
+        } else {
+            return true;
+        }
+    }
 } // Plumber
